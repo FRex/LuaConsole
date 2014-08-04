@@ -28,6 +28,7 @@ public:
     void parseLastLine();
     void addChar(char c);
     void backspace();
+    void del();
     unsigned getDirtyness()const;
     void echo(const std::string& str);
     void setWidth(std::size_t w);

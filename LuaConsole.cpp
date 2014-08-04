@@ -56,6 +56,9 @@ void LuaConsole::handleKeyEvent(const sf::Event& eve)
         case sf::Keyboard::BackSpace:
             m_model->backspace();
             break;
+        case sf::Keyboard::Delete:
+            m_model->del();
+            break;
         case sf::Keyboard::Return:
             m_model->parseLastLine();
             break;

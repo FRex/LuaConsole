@@ -124,6 +124,12 @@ void LuaConsoleModel::backspace()
     }
 }
 
+void LuaConsoleModel::del()
+{
+    m_lastline.erase(m_cur - 1, 1);
+    ++m_dirtyness;
+}
+
 unsigned LuaConsoleModel::getDirtyness() const
 {
     return m_dirtyness;
