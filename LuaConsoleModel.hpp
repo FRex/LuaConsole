@@ -30,7 +30,7 @@ public:
     void backspace();
     unsigned getDirtyness()const;
     void echo(const std::string& str);
-    void setWidth(int w);
+    void setWidth(std::size_t w);
     const std::string& getWideMsg(int index) const;
     const std::string& getLastLine() const;
     int getCurPos() const;

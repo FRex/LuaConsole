@@ -36,7 +36,7 @@ LuaConsoleModel::~LuaConsoleModel()
 {
     //save history to file
     std::ofstream file(kHistoryFilename);
-    for(int i = 0; i < m_history.size(); ++i)
+    for(std::size_t i = 0u; i < m_history.size(); ++i)
     {
         file << m_history[i] << std::endl;
     }
@@ -56,7 +56,7 @@ void LuaConsoleModel::readHistory(int change)
     m_hindex = std::max<int>(m_hindex, 0);
     m_hindex = std::min<int>(m_hindex, m_history.size());
 
-    if(m_hindex == m_history.size())
+    if(static_cast<std::size_t>(m_hindex) == m_history.size())
     {
         m_lastline.clear();
         moveCursor(kCursorHome);
@@ -135,7 +135,7 @@ void LuaConsoleModel::echo(const std::string& str)
 
     m_msg.push_back(str);
 
-    for(int i = 0; i * m_w < str.length(); ++i)
+    for(std::size_t i = 0u; i * m_w < str.length(); ++i)
     {
         m_widemsg.push_back(str.substr(i*m_w, m_w));
     }
@@ -152,7 +152,7 @@ void LuaConsoleModel::echo(const std::string& str)
     ++m_dirtyness;
 }
 
-void LuaConsoleModel::setWidth(int w)
+void LuaConsoleModel::setWidth(std::size_t w)
 {
     m_w = w;
     m_empty.resize(w, ' ');
@@ -160,7 +160,7 @@ void LuaConsoleModel::setWidth(int w)
 
     for(const std::string& str : m_msg)
     {
-        for(int i = 0; i * w < str.length(); ++i)
+        for(std::size_t i = 0u; i * w < str.length(); ++i)
         {
             m_widemsg.push_back(str.substr(i*w, w));
         }
@@ -172,9 +172,9 @@ void LuaConsoleModel::setWidth(int w)
 }
 
 const std::string& LuaConsoleModel::getWideMsg(int index) const
-{
+{   
     if(index < 0) index = m_widemsg.size() + index;
-    if(index < 0 || index >= m_widemsg.size()) return m_empty;
+    if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty;
 
     return m_widemsg[index];
 }
@@ -253,10 +253,10 @@ void LuaConsoleModel::tryComplete()
 
     lua_settop(L, 0); //pop all trash we put on the stack
 
-    if(possible.size() > 1)
+    if(possible.size() > 1u)
     {
         std::string msg = possible[0];
-        for(int i = 1; i < possible.size(); ++i)
+        for(std::size_t i = 1u; i < possible.size(); ++i)
         {
             msg += " " + possible[i];
         }

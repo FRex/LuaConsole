@@ -1,6 +1,5 @@
 #include "LuaConsole.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <cassert>
 #include <algorithm>
 #include <cstring>
 #include <lua.hpp>

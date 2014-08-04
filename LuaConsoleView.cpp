@@ -1,7 +1,6 @@
 #include "LuaConsoleView.hpp"
 #include "LuaConsoleModel.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <cassert>
 
 namespace lua {
 
@@ -78,7 +77,7 @@ void LuaConsoleView::doMsgs(const LuaConsoleModel& model)
 
         for(int x = 0; x < kInnerWidth; ++x) a[x] = ' ';
 
-        for(int x = 0; x < l.size(); ++x)
+        for(std::size_t x = 0u; x < l.size(); ++x)
         {
             a[x] = l[x];
         }
@@ -91,7 +90,7 @@ void LuaConsoleView::doMsgs(const LuaConsoleModel& model)
         a[x] = ' ';
     }
 
-    for(int x = 0; x < model.getLastLine().size(); ++x)
+    for(std::size_t x = 0; x < model.getLastLine().size(); ++x)
     {
         a[x] = model.getLastLine()[x];
     }
@@ -146,9 +145,9 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
     float x = 0.f;
     float y = kFontSize;
 
-    sf::Uint32 prevChar = 0;
+    sf::Uint32 prevChar = 0u;
 
-    for(std::size_t i = 0; i < 24 * 80; ++i)
+    for(std::size_t i = 0u; i < 24u * 80u; ++i)
     {
         sf::Uint32 curChar = m_screen[i];
 
@@ -156,7 +155,7 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
         x += m_font.getKerning(prevChar, curChar, kFontSize);
         prevChar = curChar;
 
-        if(model.getCurPos() + 80 * 22 == i)
+        if(model.getCurPos() + 80u * 22u == i)
         {
             const sf::Glyph g = m_font.getGlyph(kFullBlockChar, kFontSize, false);
             m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));

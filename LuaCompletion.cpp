@@ -15,7 +15,7 @@ void prepareHints(lua_State * L, std::string str, std::string& last)
 
     std::vector<std::string> tables;
     int begin = 0;
-    for(int i = 0; i < str.size(); ++i)
+    for(std::size_t i = 0u; i < str.size(); ++i)
     {
         if(str[i] == '.' || str[i] == ':')
         {
@@ -26,7 +26,7 @@ void prepareHints(lua_State * L, std::string str, std::string& last)
     last = str.substr(begin);
 
     lua_pushglobaltable(L);
-    for(int i = 0; i < tables.size(); ++i)
+    for(std::size_t i = 0u; i < tables.size(); ++i)
     {
         if(lua_type(L, -1) != LUA_TTABLE) //if not a table, try fetch meta now
         {
@@ -60,7 +60,7 @@ bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::
             continue;
         }
 
-        for(int i = 0; i < last.size(); ++i) //compare up to our len
+        for(std::size_t i = 0u; i < last.size(); ++i) //compare up to our len
             if(key[i] != last[i]) match = false;
 
         if(match && (!skipunderscore || key[0] != '_'))

@@ -9,6 +9,7 @@
 #define	LUACONSOLECOMMON_HPP
 
 #include <cassert>
+#include <cstddef>
 
 struct lua_State;
 
