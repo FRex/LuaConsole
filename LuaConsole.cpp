@@ -41,6 +41,9 @@ bool LuaConsole::handleEvent(const sf::Event& eve)
             m_model->addChar(static_cast<char>(eve.text.unicode));
             return true;
             break;
+        default:
+            return false;
+            break;
     } //eve.type
     return false;
 }
@@ -77,6 +80,9 @@ void LuaConsole::handleKeyEvent(const sf::Event& eve)
             break;
         case sf::Keyboard::Tab:
             m_model->tryComplete();
+            break;
+        default:
+            //TODO:optionally do not consume all keys
             break;
     }
 }
