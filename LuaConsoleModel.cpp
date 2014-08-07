@@ -107,7 +107,8 @@ void LuaConsoleModel::parseLastLine()
 
 void LuaConsoleModel::addChar(char c)
 {
-    if(c < ' ' || c >= 127 || m_cur >= kInnerWidth) return;
+    if(c < ' ' || c >= 127 || m_cur >= kInnerWidth || m_lastline.size() + 1u >= kInnerWidth)
+        return;
 
     m_lastline.insert(m_lastline.begin() + m_cur - 1, c);
     ++m_cur;
@@ -135,24 +136,49 @@ unsigned LuaConsoleModel::getDirtyness() const
     return m_dirtyness;
 }
 
+//split str on newlines and to fit 'width' length and push to given vector (if not null)
+//returns how many messages str was split into
+
+static std::size_t pushWideMessages(const std::string& str, std::vector<std::string>* widemsgs, unsigned width)
+{
+    std::size_t ret = 0u;
+    std::size_t charcount = 0u;
+    std::size_t start = 0u;
+
+    //push pieces of str if they go over width or if we encounter a newline
+    for(std::size_t i = 0u; i < str.size(); ++i)
+    {
+        ++charcount;
+        if(str[i] == '\n' || charcount > width)
+        {
+            if(widemsgs) widemsgs->push_back(str.substr(start, charcount - 1u));
+            ++ret;
+            start = i + 1u;
+            charcount = 0u;
+        }
+    }
+
+    //push last piece if loop didn't
+    if(charcount != 0u)
+    {
+        if(widemsgs) widemsgs->push_back(str.substr(start, charcount));
+        ++ret;
+    }
+    return ret;
+}
+
 void LuaConsoleModel::echo(const std::string& str)
 {
     if(str.empty()) return echo(" "); //workaround for a bug??
 
     m_msg.push_back(str);
-
-    for(std::size_t i = 0u; i * m_w < str.length(); ++i)
-    {
-        m_widemsg.push_back(str.substr(i*m_w, m_w));
-    }
-
-    m_widemsg.back().resize(m_w, ' ');
+    pushWideMessages(str, &m_widemsg, m_w);
 
     if(m_msg.size() > kMessagesKeptCount)
     {
-        const int s = m_msg.front().size();
+        const std::size_t msgs = pushWideMessages(*m_msg.begin(), nullptr, m_w);
         m_msg.erase(m_msg.begin());
-        m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + 1 + s / m_w);
+        m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
 
     ++m_dirtyness;
@@ -161,24 +187,16 @@ void LuaConsoleModel::echo(const std::string& str)
 void LuaConsoleModel::setWidth(std::size_t w)
 {
     m_w = w;
-    m_empty.resize(w, ' ');
     m_widemsg.clear();
 
     for(const std::string& str : m_msg)
-    {
-        for(std::size_t i = 0u; i * w < str.length(); ++i)
-        {
-            m_widemsg.push_back(str.substr(i*w, w));
-        }
-
-        m_widemsg.back().resize(w, ' ');
-    }
+        pushWideMessages(str, &m_widemsg, m_w);
 
     ++m_dirtyness;
 }
 
 const std::string& LuaConsoleModel::getWideMsg(int index) const
-{   
+{
     if(index < 0) index = m_widemsg.size() + index;
     if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty;
 

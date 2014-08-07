@@ -57,7 +57,7 @@ private:
     int m_w;
     std::vector<std::string> m_widemsg;
 
-    std::string m_empty;
+    const std::string m_empty;
 
 };
 
