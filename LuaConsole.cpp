@@ -12,7 +12,7 @@ namespace lua {
 
 LuaConsole::LuaConsole() : m_model(new LuaConsoleModel), m_view(new LuaConsoleView)
 {
-    m_model->setWidth(78);
+    m_model->setWidth(78u);
     m_view->setBackgroundColor(sf::Color(0u, 127u, 127u, 127u)); //mild half cyan
 }
 
@@ -101,13 +101,7 @@ void LuaConsole::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 void LuaConsole::setL(lua_State * L)
 {
-    this->L = L;
     m_visible = m_model->setL(L);
-}
-
-void LuaConsole::setBackgroundColor(sf::Color c)
-{
-    m_view->setBackgroundColor(c);
 }
 
 LuaConsoleModel* LuaConsole::model() const

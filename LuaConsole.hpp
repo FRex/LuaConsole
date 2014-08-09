@@ -33,7 +33,6 @@ public:
     bool handleEvent(const sf::Event& eve); //true if event was consumed
 
     void setL(lua_State * L);
-    void setBackgroundColor(sf::Color c);
 
     LuaConsoleModel* model() const;
     LuaConsoleView* view()const;
@@ -49,7 +48,6 @@ private:
     LuaConsoleModel * m_model;
     LuaConsoleView * m_view;
 
-    lua_State * L;
     bool m_visible = false;
 };
 
