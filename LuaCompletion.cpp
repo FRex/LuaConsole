@@ -1,5 +1,5 @@
 #include "LuaCompletion.hpp"
-#include <lua.hpp>
+#include "LuaHeader.hpp"
 #include <sstream>
 #include <algorithm>
 

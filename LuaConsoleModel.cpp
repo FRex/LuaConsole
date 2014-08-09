@@ -1,6 +1,6 @@
 #include "LuaConsoleModel.hpp"
 #include "LuaConsoleCommon.hpp"
-#include <lua.hpp>
+#include "LuaHeader.hpp"
 #include <cstring>
 #include <algorithm>
 #include <sstream>
@@ -87,7 +87,7 @@ void LuaConsoleModel::parseLastLine()
         std::size_t len;
         const char * err = lua_tolstring(L, -1, &len);
 
-        if(0 != std::strcmp(err + len - 5, "<eof>"))
+        if(!lua::incompleteChunkError(err, len))
         {
             m_buffcmd.clear(); //failed normally - clear it
             echo(err);

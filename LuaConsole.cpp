@@ -2,7 +2,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <algorithm>
 #include <cstring>
-#include <lua.hpp>
+#include "LuaHeader.hpp"
 #include <SFML/Graphics/RectangleShape.hpp>
 
 #include "LuaConsoleModel.hpp"
