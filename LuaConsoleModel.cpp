@@ -149,9 +149,10 @@ static std::size_t pushWideMessages(const std::string& str, std::vector<std::str
     for(std::size_t i = 0u; i < str.size(); ++i)
     {
         ++charcount;
-        if(str[i] == '\n' || charcount > width)
+        if(str[i] == '\n' || charcount >= width)
         {
-            if(widemsgs) widemsgs->push_back(str.substr(start, charcount - 1u));
+            if(str[i] == '\n') --charcount;
+            if(widemsgs) widemsgs->push_back(str.substr(start, charcount));
             ++ret;
             start = i + 1u;
             charcount = 0u;
