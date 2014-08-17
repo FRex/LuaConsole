@@ -19,10 +19,8 @@ namespace lua {
 
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
+    friend class LuaConsole;
 public:
-    LuaConsoleModel();
-    ~LuaConsoleModel();
-
     void moveCursor(int move);
     void readHistory(int change);
     void parseLastLine();
@@ -31,14 +29,16 @@ public:
     void del();
     unsigned getDirtyness()const;
     void echo(const std::string& str);
-    void setWidth(std::size_t w);
     const std::string& getWideMsg(int index) const;
     const std::string& getLastLine() const;
     int getCurPos() const;
-    bool setL(lua_State * L);
     void tryComplete();
 
 private:
+    LuaConsoleModel();
+    ~LuaConsoleModel();
+    void setWidth(std::size_t w);
+    bool setL(lua_State * L);
 
     //for renderer catching:
     unsigned m_dirtyness;

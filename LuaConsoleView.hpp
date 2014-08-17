@@ -18,13 +18,15 @@ class LuaConsoleModel;
 
 class LuaConsoleView
 {
+    friend class LuaConsole;
 public:
-    LuaConsoleView();
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void setBackgroundColor(sf::Color c);
-    void geoRebuild(const LuaConsoleModel& model); //keep last
 
 private:
+    LuaConsoleView();
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    void geoRebuild(const LuaConsoleModel& model); //keep last
+
     sf::Uint32 * getCells(int x, int y);
     void doMsgs(const LuaConsoleModel& model);
 

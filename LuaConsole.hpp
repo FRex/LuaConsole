@@ -35,7 +35,7 @@ public:
     void setL(lua_State * L);
 
     LuaConsoleModel* model() const;
-    LuaConsoleView* view()const;
+    LuaConsoleView* view() const;
 
     void setVisible(bool visible);
     bool isVisible() const;
