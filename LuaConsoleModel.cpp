@@ -254,14 +254,18 @@ bool LuaConsoleModel::setL(lua_State * L)
 
         lua_pushcclosure(L, &ConsoleModel_echo, 1);
         lua_setglobal(L, "echo");
-        if(luaL_dofile(L, kInitFilename) == LUA_OK)
+
+        if(m_options & ECO_INIT)
         {
-            return lua_toboolean(L, -1);
-        }
-        else
-        {
-            echo(lua_tostring(L, -1));
-            return true; //crapped up init is important so show console right away
+            if(luaL_dofile(L, kInitFilename) == LUA_OK)
+            {
+                return lua_toboolean(L, -1);
+            }
+            else
+            {
+                echo(lua_tostring(L, -1));
+                return true; //crapped up init is important so show console right away
+            }
         }
     }
     return false;
