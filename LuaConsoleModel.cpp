@@ -25,23 +25,29 @@ L(nullptr),
 m_callbacks(nullptr),
 m_options(options)
 {
-    //read history from file
-    std::ifstream file(kHistoryFilename);
-    std::string str;
-    while(std::getline(file, str) && m_history.size() < kHistoryKeptCount)
+    //read history from file if desired
+    if(m_options & ECO_HISTORY)
     {
-        m_history.push_back(str);
+        std::ifstream file(kHistoryFilename);
+        std::string str;
+        while(std::getline(file, str) && m_history.size() < kHistoryKeptCount)
+        {
+            m_history.push_back(str);
+        }
     }
     m_hindex = m_history.size();
 }
 
 LuaConsoleModel::~LuaConsoleModel()
 {
-    //save history to file
-    std::ofstream file(kHistoryFilename);
-    for(std::size_t i = 0u; i < m_history.size(); ++i)
+    //save history to file if desired
+    if(m_options & ECO_HISTORY)
     {
-        file << m_history[i] << std::endl;
+        std::ofstream file(kHistoryFilename);
+        for(std::size_t i = 0u; i < m_history.size(); ++i)
+        {
+            file << m_history[i] << std::endl;
+        }
     }
 }
 
