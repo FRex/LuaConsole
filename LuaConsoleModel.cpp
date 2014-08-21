@@ -18,11 +18,12 @@ const int kMessagesKeptCount = 100;
 const char * const kHistoryFilename = "luaconsolehistory.txt";
 const char * const kInitFilename = "luaconsoleinit.lua";
 
-LuaConsoleModel::LuaConsoleModel() :
+LuaConsoleModel::LuaConsoleModel(unsigned options) :
 m_dirtyness(1u), //because 0u is what view starts at
 m_cur(1),
 L(nullptr),
-m_callbacks(nullptr)
+m_callbacks(nullptr),
+m_options(options)
 {
     //read history from file
     std::ifstream file(kHistoryFilename);

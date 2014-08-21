@@ -24,7 +24,8 @@ public:
     void setFont(const sf::Font * font);
 
 private:
-    LuaConsoleView();
+    LuaConsoleView(unsigned options);
+    ~LuaConsoleView();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void geoRebuild(const LuaConsoleModel& model); //keep last
 
@@ -38,7 +39,9 @@ private:
     sf::Uint32 m_screen[80 * 24]; //make this adjustable?
 
     const sf::Font * m_font;
+    bool m_ownfont;
     sf::VertexArray m_vertices; //vertices with font
+    unsigned m_options;
 
 };
 

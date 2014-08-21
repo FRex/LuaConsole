@@ -15,9 +15,13 @@ const sf::Uint32 kURFrameChar = 0x2557u;
 
 const unsigned kFontSize = 18u;
 
-LuaConsoleView::LuaConsoleView() :
+const char * const kFontName = "DejaVuSansMono.ttf";
+
+LuaConsoleView::LuaConsoleView(unsigned options) :
 m_lastdirtyness(0u),
-m_font(nullptr)
+m_font(nullptr),
+m_ownfont(false),
+m_options(options)
 {
     m_vertices.setPrimitiveType(sf::Quads);
 
@@ -45,6 +49,19 @@ m_font(nullptr)
     m_screen[0 + 80 * 23] = kBLFrameChar;
     m_screen[79 + 80 * 23] = kBRFrameChar;
     m_screen[79 + 80 * 0] = kURFrameChar;
+
+    if(m_options & ECO_FONT)
+    {
+        sf::Font * dfont = new sf::Font;
+        dfont->loadFromFile(kFontName);
+        m_font = dfont;
+        m_ownfont = true;
+    }
+}
+
+LuaConsoleView::~LuaConsoleView()
+{
+    if(m_ownfont) delete m_font;
 }
 
 void LuaConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -104,7 +121,21 @@ void LuaConsoleView::setBackgroundColor(sf::Color c)
 
 void LuaConsoleView::setFont(const sf::Font * font)
 {
+    //do something to dirtyness to force rebuilding letters??
+
+    if(m_ownfont) delete m_font;
+
     m_font = font;
+    m_ownfont = false; //never own a set font
+
+    //if set font is null and we have default option then set it
+    if(!m_font && (m_options & ECO_FONT))
+    {
+        sf::Font * dfont = new sf::Font;
+        dfont->loadFromFile(kFontName);
+        m_font = dfont;
+        m_ownfont = true;
+    }
 }
 
 //code below was taken from SFML Text.cpp and MODIFIED,

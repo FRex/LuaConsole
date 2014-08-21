@@ -9,11 +9,8 @@ int main()
     app.setFramerateLimit(30u);
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
-    sf::Font font;
-    font.loadFromFile("DejaVuSansMono.ttf");
     lua::LuaConsole console;
     console.setL(L);
-    console.view()->setFont(&font);
 
     while(app.isOpen())
     {

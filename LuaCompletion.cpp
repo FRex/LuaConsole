@@ -12,6 +12,7 @@ namespace lua {
 //it will return "vars.blabla.lul" and so on
 //so the main table pushing code just needs to split the str on . and not worry
 //about anything else
+
 static std::string cleanTableList(const std::string& str)
 {
     std::string ret;

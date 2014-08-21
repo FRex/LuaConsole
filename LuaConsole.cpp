@@ -10,7 +10,10 @@
 
 namespace lua {
 
-LuaConsole::LuaConsole() : m_model(new LuaConsoleModel), m_view(new LuaConsoleView)
+LuaConsole::LuaConsole(unsigned options) :
+m_model(new LuaConsoleModel(options)),
+m_view(new LuaConsoleView(options)),
+m_options(options)
 {
     m_model->setWidth(78u);
     m_view->setBackgroundColor(sf::Color(0u, 127u, 127u, 127u)); //mild half cyan

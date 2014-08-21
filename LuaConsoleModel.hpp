@@ -38,9 +38,9 @@ public:
     const std::vector<std::string>& getHistory() const;
     void setHistory(const std::vector<std::string>& history);
     void setCallbacks(LuaConsoleCallbacks * callbacks);
-    
+
 private:
-    LuaConsoleModel();
+    LuaConsoleModel(unsigned options);
     ~LuaConsoleModel();
     void setWidth(std::size_t w);
     bool setL(lua_State * L);
@@ -65,6 +65,8 @@ private:
     const std::string m_empty;
 
     LuaConsoleCallbacks * m_callbacks;
+    unsigned m_options;
+
 };
 
 }

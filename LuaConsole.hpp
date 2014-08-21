@@ -26,7 +26,7 @@ namespace lua {
 class LuaConsole : public sf::Drawable, private sf::NonCopyable
 {
 public:
-    LuaConsole();
+    LuaConsole(unsigned options = ECO_DEFAULT);
     ~LuaConsole();
 
     void echo(const std::string& msg);
@@ -49,6 +49,8 @@ private:
     LuaConsoleView * m_view;
 
     bool m_visible = false;
+    unsigned m_options;
+
 };
 
 }
