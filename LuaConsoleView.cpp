@@ -15,11 +15,11 @@ const sf::Uint32 kURFrameChar = 0x2557u;
 
 const unsigned kFontSize = 18u;
 
-LuaConsoleView::LuaConsoleView() : m_lastdirtyness(0u)
+LuaConsoleView::LuaConsoleView() :
+m_lastdirtyness(0u),
+m_font(nullptr)
 {
     m_vertices.setPrimitiveType(sf::Quads);
-
-    m_font.loadFromFile("DejaVuSansMono.ttf");
 
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -49,13 +49,14 @@ LuaConsoleView::LuaConsoleView() : m_lastdirtyness(0u)
 
 void LuaConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if(!m_font) return;
     sf::RectangleShape sha;
     sha.setPosition(m_vertices.getBounds().left, m_vertices.getBounds().top);
     sha.setSize(sf::Vector2f(m_vertices.getBounds().width, m_vertices.getBounds().height));
     sha.setFillColor(m_backcolor);
     target.draw(sha);
     target.draw(m_r);
-    target.draw(m_vertices, &m_font.getTexture(kFontSize));
+    target.draw(m_vertices, &m_font->getTexture(kFontSize));
 }
 
 sf::Uint32 * LuaConsoleView::getCells(int x, int y)
@@ -101,6 +102,11 @@ void LuaConsoleView::setBackgroundColor(sf::Color c)
     m_backcolor = c;
 }
 
+void LuaConsoleView::setFont(const sf::Font * font)
+{
+    m_font = font;
+}
+
 //code below was taken from SFML Text.cpp and MODIFIED,
 //it is NOT the original software, if looking for original software see:
 //https://github.com/LaurentGomila/SFML/
@@ -132,6 +138,8 @@ void LuaConsoleView::setBackgroundColor(sf::Color c)
 void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
 {
     if(m_lastdirtyness == model.getDirtyness()) return; //no need
+    if(!m_font) return; //take dirtyness after so setting font late works
+
     m_lastdirtyness = model.getDirtyness();
 
     doMsgs(model);
@@ -140,8 +148,8 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
     m_vertices.clear();
 
     // Precompute the variables needed by the algorithm
-    float hspace = m_font.getGlyph(L' ', kFontSize, false).advance;
-    float vspace = m_font.getLineSpacing(kFontSize);
+    float hspace = m_font->getGlyph(L' ', kFontSize, false).advance;
+    float vspace = m_font->getLineSpacing(kFontSize);
     float x = 0.f;
     float y = kFontSize;
 
@@ -152,12 +160,12 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
         sf::Uint32 curChar = m_screen[i];
 
         // Apply the kerning offset
-        x += m_font.getKerning(prevChar, curChar, kFontSize);
+        x += m_font->getKerning(prevChar, curChar, kFontSize);
         prevChar = curChar;
 
         if(model.getCurPos() + 80u * 22u == i)
         {
-            const sf::Glyph g = m_font.getGlyph(kFullBlockChar, kFontSize, false);
+            const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
             m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));
             m_r.setPosition(sf::Vector2f(x + g.bounds.left, y + g.bounds.top));
             m_r.setFillColor(sf::Color::Cyan);
@@ -172,7 +180,7 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
         }
 
         // Extract the current glyph's description
-        const sf::Glyph& glyph = m_font.getGlyph(curChar, kFontSize, false);
+        const sf::Glyph& glyph = m_font->getGlyph(curChar, kFontSize, false);
 
         int left = glyph.bounds.left;
         int top = glyph.bounds.top;

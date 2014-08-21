@@ -21,6 +21,7 @@ class LuaConsoleView
     friend class LuaConsole;
 public:
     void setBackgroundColor(sf::Color c);
+    void setFont(const sf::Font * font);
 
 private:
     LuaConsoleView();
@@ -36,7 +37,7 @@ private:
     sf::RectangleShape m_r; //cursor shape?
     sf::Uint32 m_screen[80 * 24]; //make this adjustable?
 
-    sf::Font m_font; //this needs to be a ptr that can be set?
+    const sf::Font * m_font;
     sf::VertexArray m_vertices; //vertices with font
 
 };
