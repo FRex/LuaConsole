@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "LuaCompletion.hpp"
+#include "LuaConsoleCallbacks.hpp"
 
 namespace lua {
 
@@ -20,7 +21,8 @@ const char * const kInitFilename = "luaconsoleinit.lua";
 LuaConsoleModel::LuaConsoleModel() :
 m_dirtyness(1u), //because 0u is what view starts at
 m_cur(1),
-L(nullptr)
+L(nullptr),
+m_callbacks(nullptr)
 {
     //read history from file
     std::ifstream file(kHistoryFilename);
@@ -79,6 +81,10 @@ void LuaConsoleModel::parseLastLine()
     if(m_history.size() > kHistoryKeptCount) m_history.erase(m_history.begin());
 
     m_hindex = m_history.size();
+
+    //call before running, in case crash, exit etc.
+    if(m_callbacks) m_callbacks->onNewHistoryItem();
+
     m_buffcmd += m_lastline;
     m_buffcmd += '\n';
 
@@ -294,6 +300,17 @@ void LuaConsoleModel::tryComplete()
         ++m_dirtyness;
         moveCursor(kCursorEnd);
     }
+}
+
+const std::vector<std::string>& LuaConsoleModel::getHistory() const
+{
+    return m_history;
+}
+
+void LuaConsoleModel::setHistory(const std::vector<std::string>& history)
+{
+    m_history = history;
+    m_hindex = history.size();
 }
 
 } //lua

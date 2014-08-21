@@ -17,6 +17,8 @@ struct lua_State;
 
 namespace lua {
 
+class LuaConsoleCallbacks;
+
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
     friend class LuaConsole;
@@ -33,7 +35,10 @@ public:
     const std::string& getLastLine() const;
     int getCurPos() const;
     void tryComplete();
-
+    const std::vector<std::string>& getHistory() const;
+    void setHistory(const std::vector<std::string>& history);
+    void setCallbacks(LuaConsoleCallbacks * callbacks);
+    
 private:
     LuaConsoleModel();
     ~LuaConsoleModel();
@@ -59,6 +64,7 @@ private:
 
     const std::string m_empty;
 
+    LuaConsoleCallbacks * m_callbacks;
 };
 
 }
