@@ -324,4 +324,9 @@ void LuaConsoleModel::setHistory(const std::vector<std::string>& history)
     m_hindex = history.size();
 }
 
+void LuaConsoleModel::setCallbacks(LuaConsoleCallbacks* callbacks)
+{
+    m_callbacks = callbacks;
+}
+
 } //lua
