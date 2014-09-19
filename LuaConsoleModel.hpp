@@ -19,6 +19,16 @@ namespace lua {
 
 class LuaConsoleCallbacks;
 
+typedef std::basic_string<unsigned> ColorString;
+
+class ColoredLine
+{
+public:
+    std::string Text;
+    ColorString Color;
+
+};
+
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
     friend class LuaConsole;
@@ -31,7 +41,9 @@ public:
     void del();
     unsigned getDirtyness()const;
     void echo(const std::string& str);
+    void coloredEcho(const std::string& str, unsigned text);
     const std::string& getWideMsg(int index) const;
+    const ColorString& getWideColor(int index) const;
     const std::string& getLastLine() const;
     int getCurPos() const;
     void tryComplete();
@@ -57,12 +69,12 @@ private:
     std::vector<std::string> m_history;
     int m_hindex;
 
-    std::vector<std::string> m_msg;
+    std::vector<ColoredLine> m_msg;
 
     int m_w;
-    std::vector<std::string> m_widemsg;
+    std::vector<ColoredLine> m_widemsg;
 
-    const std::string m_empty;
+    const ColoredLine m_empty;
 
     LuaConsoleCallbacks * m_callbacks;
     unsigned m_options;

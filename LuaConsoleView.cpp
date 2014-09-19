@@ -17,6 +17,16 @@ const unsigned kFontSize = 18u;
 
 const char * const kFontName = "DejaVuSansMono.ttf";
 
+static sf::Color toColor(unsigned color)
+{
+    sf::Color ret;
+    ret.r = (color & 0xff000000) >> 24;
+    ret.g = (color & 0xff0000) >> 16;
+    ret.b = (color & 0xff00) >> 8;
+    ret.a = color & 0xff;
+    return ret;
+}
+
 LuaConsoleView::LuaConsoleView(unsigned options) :
 m_lastdirtyness(0u),
 m_font(nullptr),
@@ -27,28 +37,29 @@ m_options(options)
 
     for(int i = 0; i < 24 * 80; ++i)
     {
-        m_screen[i] = ' '; //0x2588
+        m_screen[i].Char = ' '; //0x2588
+        m_screen[i].Color = sf::Color::White;
     }
 
     //vertical
     for(int i = 0; i < 80; ++i)
     {
-        m_screen[i + 80 * 0] = kVerticalBarChar;
-        m_screen[i + 80 * 23] = kVerticalBarChar;
+        m_screen[i + 80 * 0].Char = kVerticalBarChar;
+        m_screen[i + 80 * 23].Char = kVerticalBarChar;
     }
 
     //horizontal
     for(int i = 0; i < 24; ++i)
     {
-        m_screen[0 + 80 * i] = kHorizontalBarChar;
-        m_screen[79 + 80 * i] = kHorizontalBarChar;
+        m_screen[0 + 80 * i].Char = kHorizontalBarChar;
+        m_screen[79 + 80 * i].Char = kHorizontalBarChar;
     }
 
     //corners
-    m_screen[0 + 80 * 0] = kULFrameChar;
-    m_screen[0 + 80 * 23] = kBLFrameChar;
-    m_screen[79 + 80 * 23] = kBRFrameChar;
-    m_screen[79 + 80 * 0] = kURFrameChar;
+    m_screen[0 + 80 * 0].Char = kULFrameChar;
+    m_screen[0 + 80 * 23].Char = kBLFrameChar;
+    m_screen[79 + 80 * 23].Char = kBRFrameChar;
+    m_screen[79 + 80 * 0].Char = kURFrameChar;
 
     if(m_options & ECO_FONT)
     {
@@ -70,13 +81,13 @@ void LuaConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) con
     sf::RectangleShape sha;
     sha.setPosition(m_vertices.getBounds().left, m_vertices.getBounds().top);
     sha.setSize(sf::Vector2f(m_vertices.getBounds().width, m_vertices.getBounds().height));
-    sha.setFillColor(m_backcolor);
+    sha.setFillColor(m_consolecolor);
     target.draw(sha);
     target.draw(m_r);
     target.draw(m_vertices, &m_font->getTexture(kFontSize));
 }
 
-sf::Uint32 * LuaConsoleView::getCells(int x, int y)
+ScreenCell * LuaConsoleView::getCells(int x, int y)
 {
     assert(0 < x);
     assert(x < 79);
@@ -90,33 +101,40 @@ void LuaConsoleView::doMsgs(const LuaConsoleModel& model)
     for(int i = 1; i < 22; ++i)
     {
         const std::string& l = model.getWideMsg(i - 22);
+        const ColorString& c = model.getWideColor(i - 22);
 
-        sf::Uint32 * a = getCells(1, i);
+        ScreenCell * a = getCells(1, i);
 
-        for(int x = 0; x < kInnerWidth; ++x) a[x] = ' ';
+        for(int x = 0; x < kInnerWidth; ++x)
+        {
+            a[x].Char = ' ';
+            a[x].Color = sf::Color::White;
+        }
 
         for(std::size_t x = 0u; x < l.size(); ++x)
         {
-            a[x] = l[x];
+            a[x].Char = l[x];
+            a[x].Color = toColor(c[x]);
         }
     }
 
-    sf::Uint32 * a = getCells(1, 22);
+    ScreenCell * a = getCells(1, 22);
 
     for(int x = 0; x < kInnerWidth; ++x)
     {
-        a[x] = ' ';
+        a[x].Char = ' ';
+        a[x].Color = sf::Color::White;
     }
 
     for(std::size_t x = 0; x < model.getLastLine().size(); ++x)
     {
-        a[x] = model.getLastLine()[x];
+        a[x].Char = model.getLastLine()[x];
     }
 }
 
 void LuaConsoleView::setBackgroundColor(sf::Color c)
 {
-    m_backcolor = c;
+    m_consolecolor = c;
 }
 
 void LuaConsoleView::setFont(const sf::Font * font)
@@ -188,7 +206,7 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
 
     for(std::size_t i = 0u; i < 24u * 80u; ++i)
     {
-        sf::Uint32 curChar = m_screen[i];
+        sf::Uint32 curChar = m_screen[i].Char;
 
         // Apply the kerning offset
         x += m_font->getKerning(prevChar, curChar, kFontSize);
@@ -223,9 +241,8 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
         float u2 = glyph.textureRect.left + glyph.textureRect.width;
         float v2 = glyph.textureRect.top + glyph.textureRect.height;
 
-        const sf::Color col = sf::Color::White;
-
-        // Add a quad for the current character
+        //add a quad for the current character
+        const sf::Color col = m_screen[i].Color;
         m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + top), col, sf::Vector2f(u1, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + top), col, sf::Vector2f(u2, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + bottom), col, sf::Vector2f(u2, v2)));

@@ -82,7 +82,7 @@ void LuaConsoleModel::readHistory(int change)
 void LuaConsoleModel::parseLastLine()
 {
     assert(L);
-    echo(m_lastline);
+    coloredEcho(m_lastline, 0xffff00ff);
     m_history.push_back(m_lastline);
 
     if(m_history.size() > kHistoryKeptCount) m_history.erase(m_history.begin());
@@ -103,7 +103,7 @@ void LuaConsoleModel::parseLastLine()
         if(!lua::incompleteChunkError(err, len))
         {
             m_buffcmd.clear(); //failed normally - clear it
-            echo(err);
+            coloredEcho(err, 0xff0000ff);
         }
 
         lua_pop(L, 1);
@@ -152,20 +152,26 @@ unsigned LuaConsoleModel::getDirtyness() const
 //split str on newlines and to fit 'width' length and push to given vector (if not null)
 //returns how many messages str was split into
 
-static std::size_t pushWideMessages(const std::string& str, std::vector<std::string>* widemsgs, unsigned width)
+static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredLine>* widemsgs, unsigned width)
 {
     std::size_t ret = 0u;
     std::size_t charcount = 0u;
     std::size_t start = 0u;
 
     //push pieces of str if they go over width or if we encounter a newline
-    for(std::size_t i = 0u; i < str.size(); ++i)
+    for(std::size_t i = 0u; i < str.Text.size(); ++i)
     {
         ++charcount;
-        if(str[i] == '\n' || charcount >= width)
+        if(str.Text[i] == '\n' || charcount >= width)
         {
-            if(str[i] == '\n') --charcount;
-            if(widemsgs) widemsgs->push_back(str.substr(start, charcount));
+            if(str.Text[i] == '\n') --charcount;
+            if(widemsgs)
+            {
+                ColoredLine line;
+                line.Text = str.Text.substr(start, charcount);
+                line.Color = str.Color.substr(start, charcount);
+                widemsgs->push_back(line);
+            }
             ++ret;
             start = i + 1u;
             charcount = 0u;
@@ -175,7 +181,13 @@ static std::size_t pushWideMessages(const std::string& str, std::vector<std::str
     //push last piece if loop didn't
     if(charcount != 0u)
     {
-        if(widemsgs) widemsgs->push_back(str.substr(start, charcount));
+        if(widemsgs)
+        {
+            ColoredLine line;
+            line.Text = str.Text.substr(start, charcount);
+            line.Color = str.Color.substr(start, charcount);
+            widemsgs->push_back(line);
+        }
         ++ret;
     }
     return ret;
@@ -183,10 +195,19 @@ static std::size_t pushWideMessages(const std::string& str, std::vector<std::str
 
 void LuaConsoleModel::echo(const std::string& str)
 {
-    if(str.empty()) return echo(" "); //workaround for a bug??
+    coloredEcho(str, 0xffffffff);
+}
 
-    m_msg.push_back(str);
-    pushWideMessages(str, &m_widemsg, m_w);
+void LuaConsoleModel::coloredEcho(const std::string& str, unsigned text)
+{
+    if(str.empty()) return coloredEcho(" ", text); //workaround for a bug??
+
+    ColoredLine line;
+    line.Text = str;
+    line.Color.resize(str.size(), text);
+    m_msg.push_back(line);
+
+    pushWideMessages(line, &m_widemsg, m_w);
 
     if(m_msg.size() > kMessagesKeptCount)
     {
@@ -203,8 +224,8 @@ void LuaConsoleModel::setWidth(std::size_t w)
     m_w = w;
     m_widemsg.clear();
 
-    for(const std::string& str : m_msg)
-        pushWideMessages(str, &m_widemsg, m_w);
+    for(const ColoredLine& line : m_msg)
+        pushWideMessages(line, &m_widemsg, m_w);
 
     ++m_dirtyness;
 }
@@ -212,9 +233,17 @@ void LuaConsoleModel::setWidth(std::size_t w)
 const std::string& LuaConsoleModel::getWideMsg(int index) const
 {
     if(index < 0) index = m_widemsg.size() + index;
-    if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty;
+    if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty.Text;
 
-    return m_widemsg[index];
+    return m_widemsg[index].Text;
+}
+
+const ColorString& LuaConsoleModel::getWideColor(int index) const
+{
+    if(index < 0) index = m_widemsg.size() + index;
+    if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty.Color;
+
+    return m_widemsg[index].Color;
 }
 
 const std::string& LuaConsoleModel::getLastLine() const
@@ -269,7 +298,7 @@ bool LuaConsoleModel::setL(lua_State * L)
             }
             else
             {
-                echo(lua_tostring(L, -1));
+                coloredEcho(lua_tostring(L, -1), 0xff0000ff);
                 return true; //crapped up init is important so show console right away
             }
         }
@@ -302,7 +331,7 @@ void LuaConsoleModel::tryComplete()
         {
             msg += " " + possible[i];
         }
-        echo(msg);
+        coloredEcho(msg, 0x00ff00ff);
     }
     else if(possible.size() == 1)
     {

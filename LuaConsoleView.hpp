@@ -16,6 +16,14 @@ namespace lua {
 
 class LuaConsoleModel;
 
+class ScreenCell
+{
+public:
+    sf::Uint32 Char;
+    sf::Color Color;
+
+};
+
 class LuaConsoleView
 {
     friend class LuaConsole;
@@ -29,14 +37,14 @@ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void geoRebuild(const LuaConsoleModel& model); //keep last
 
-    sf::Uint32 * getCells(int x, int y);
+    ScreenCell * getCells(int x, int y);
     void doMsgs(const LuaConsoleModel& model);
 
     unsigned m_lastdirtyness; //for caching/laziness
 
-    sf::Color m_backcolor;
+    sf::Color m_consolecolor;
     sf::RectangleShape m_r; //cursor shape?
-    sf::Uint32 m_screen[80 * 24]; //make this adjustable?
+    ScreenCell m_screen[80 * 24]; //make this adjustable?
 
     const sf::Font * m_font;
     bool m_ownfont;
