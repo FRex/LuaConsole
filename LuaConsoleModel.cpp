@@ -335,6 +335,11 @@ void LuaConsoleModel::tryComplete()
             msg += " " + possible[i];
         }
         coloredEcho(msg, 0x00ff00ff);
+
+        const std::string commonprefix = commonPrefix(possible);
+        m_lastline += commonprefix.substr(last.size());
+        ++m_dirtyness;
+        moveCursor(kCursorEnd);
     }
     else if(possible.size() == 1)
     {
