@@ -23,6 +23,9 @@ void prepareHints(lua_State * L, std::string str, std::string& last);
 //usehidden decides if _names can be hints for empty string
 bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::string& last, bool usehidden);
 
+//get the common prefix of all strings
+std::string commonPrefix(const std::vector<std::string>& possible);
+
 }
 
 #endif	/* LUACOMPLETION_HPP */

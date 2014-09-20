@@ -114,4 +114,28 @@ bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::
     return true;
 }
 
+std::string commonPrefix(const std::vector<std::string>& possible)
+{
+    std::string ret;
+    std::size_t maxindex = 1000000000u;
+    for(std::size_t i = 0u; i < possible.size(); ++i)
+        maxindex = std::min(maxindex, possible[i].size());
+
+    for(std::size_t checking = 0u; checking < maxindex; ++checking)
+    {
+        const char c = possible[0u][checking];
+        for(std::size_t i = 1u; i < possible.size(); ++i)
+        {
+            if(c != possible[i][checking])
+            {
+                checking = maxindex;
+                break;
+            }
+        }
+        if(checking != maxindex)
+            ret += c;
+    }
+    return ret;
+}
+
 } //lua
