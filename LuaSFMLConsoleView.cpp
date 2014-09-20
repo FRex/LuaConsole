@@ -1,5 +1,6 @@
-#include "LuaConsoleView.hpp"
+#include "LuaSFMLConsoleView.hpp"
 #include "LuaConsoleModel.hpp"
+#include "LuaConsoleCommon.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 
 namespace lua {
@@ -27,12 +28,14 @@ static sf::Color toColor(unsigned color)
     return ret;
 }
 
-LuaConsoleView::LuaConsoleView(unsigned options) :
+LuaSFMLConsoleView::LuaSFMLConsoleView(bool defaultfont) :
 m_lastdirtyness(0u),
 m_font(nullptr),
 m_ownfont(false),
-m_options(options)
+m_defaultfont(defaultfont)
 {
+    setBackgroundColor(sf::Color(0u, 127u, 127u, 127u)); //mild half cyan
+
     m_vertices.setPrimitiveType(sf::Quads);
 
     for(int i = 0; i < 24 * 80; ++i)
@@ -61,7 +64,7 @@ m_options(options)
     m_screen[79 + 80 * 23].Char = kBRFrameChar;
     m_screen[79 + 80 * 0].Char = kURFrameChar;
 
-    if(m_options & ECO_FONT)
+    if(m_defaultfont)
     {
         sf::Font * dfont = new sf::Font;
         dfont->loadFromFile(kFontName);
@@ -70,14 +73,19 @@ m_options(options)
     }
 }
 
-LuaConsoleView::~LuaConsoleView()
+LuaSFMLConsoleView::~LuaSFMLConsoleView()
 {
     if(m_ownfont) delete m_font;
 }
 
-void LuaConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    if(!m_font) return;
+    if(!m_font || !m_modelvisible) return;
+
+    //save old view and set "normal" view for our drawing
+    sf::View v = target.getView();
+    target.setView(sf::View(sf::FloatRect(sf::Vector2f(), sf::Vector2f(target.getSize()))));
+
     sf::RectangleShape sha;
     sha.setPosition(m_vertices.getBounds().left, m_vertices.getBounds().top);
     sha.setSize(sf::Vector2f(m_vertices.getBounds().width, m_vertices.getBounds().height));
@@ -85,9 +93,12 @@ void LuaConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) con
     target.draw(sha);
     target.draw(m_r);
     target.draw(m_vertices, &m_font->getTexture(kFontSize));
+
+    //reset original view
+    target.setView(v);
 }
 
-ScreenCell * LuaConsoleView::getCells(int x, int y)
+ScreenCell * LuaSFMLConsoleView::getCells(int x, int y)
 {
     assert(0 < x);
     assert(x < 79);
@@ -96,12 +107,12 @@ ScreenCell * LuaConsoleView::getCells(int x, int y)
     return m_screen + x + 80 * y;
 }
 
-void LuaConsoleView::doMsgs(const LuaConsoleModel& model)
+void LuaSFMLConsoleView::doMsgs(const LuaConsoleModel * model)
 {
     for(int i = 1; i < 22; ++i)
     {
-        const std::string& l = model.getWideMsg(i - 22);
-        const ColorString& c = model.getWideColor(i - 22);
+        const std::string& l = model->getWideMsg(i - 22);
+        const ColorString& c = model->getWideColor(i - 22);
 
         ScreenCell * a = getCells(1, i);
 
@@ -126,18 +137,18 @@ void LuaConsoleView::doMsgs(const LuaConsoleModel& model)
         a[x].Color = sf::Color::White;
     }
 
-    for(std::size_t x = 0; x < model.getLastLine().size(); ++x)
+    for(std::size_t x = 0; x < model->getLastLine().size(); ++x)
     {
-        a[x].Char = model.getLastLine()[x];
+        a[x].Char = model->getLastLine()[x];
     }
 }
 
-void LuaConsoleView::setBackgroundColor(sf::Color c)
+void LuaSFMLConsoleView::setBackgroundColor(sf::Color c)
 {
     m_consolecolor = c;
 }
 
-void LuaConsoleView::setFont(const sf::Font * font)
+void LuaSFMLConsoleView::setFont(const sf::Font * font)
 {
     //do something to dirtyness to force rebuilding letters??
 
@@ -147,7 +158,7 @@ void LuaConsoleView::setFont(const sf::Font * font)
     m_ownfont = false; //never own a set font
 
     //if set font is null and we have default option then set it
-    if(!m_font && (m_options & ECO_FONT))
+    if(!m_font && m_defaultfont)
     {
         sf::Font * dfont = new sf::Font;
         dfont->loadFromFile(kFontName);
@@ -184,12 +195,15 @@ void LuaConsoleView::setFont(const sf::Font * font)
 //
 ////////////////////////////////////////////////////////////
 
-void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
+void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 {
-    if(m_lastdirtyness == model.getDirtyness()) return; //no need
+    if(!model) return;
+    if(m_lastdirtyness == model->getDirtyness()) return; //no need
     if(!m_font) return; //take dirtyness after so setting font late works
 
-    m_lastdirtyness = model.getDirtyness();
+    m_lastdirtyness = model->getDirtyness();
+    m_modelvisible = model->isVisible();
+    if(!m_modelvisible) return;
 
     doMsgs(model);
 
@@ -212,7 +226,7 @@ void LuaConsoleView::geoRebuild(const LuaConsoleModel& model)
         x += m_font->getKerning(prevChar, curChar, kFontSize);
         prevChar = curChar;
 
-        if(model.getCurPos() + 80u * 22u == i)
+        if(model->getCurPos() + 80u * 22u == i)
         {
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
             m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));

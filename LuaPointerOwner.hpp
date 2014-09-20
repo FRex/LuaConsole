@@ -8,7 +8,6 @@
 #ifndef LUAPOINTEROWNER_HPP
 #define	LUAPOINTEROWNER_HPP
 
-#include <SFML/System/NonCopyable.hpp>
 #include <cassert>
 
 namespace lua {
@@ -18,11 +17,14 @@ namespace lua {
 //useful to prevent accessing invalid pointer that was pushed to lua
 //it is noncopyable as that would cause errors
 
-template <typename T> class LuaPointerOwner : sf::NonCopyable
+template <typename T> class LuaPointerOwner
 {
 public:
 
     LuaPointerOwner() : m_luaptr(nullptr) { }
+    //delete copy and assignment to forbid copying (leads to errors)
+    LuaPointerOwner(const LuaPointerOwner& other) = delete;
+    LuaPointerOwner& operator=(const LuaPointerOwner& other) = delete;
 
     ~LuaPointerOwner()
     {

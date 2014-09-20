@@ -1,13 +1,11 @@
 #include "LuaConsoleModel.hpp"
-#include "LuaConsoleCommon.hpp"
 #include "LuaHeader.hpp"
+#include "LuaCompletion.hpp"
+#include "LuaConsoleCallbacks.hpp"
 #include <cstring>
 #include <algorithm>
 #include <sstream>
 #include <fstream>
-
-#include "LuaCompletion.hpp"
-#include "LuaConsoleCallbacks.hpp"
 
 namespace lua {
 
@@ -23,7 +21,8 @@ m_dirtyness(1u), //because 0u is what view starts at
 m_cur(1),
 L(nullptr),
 m_callbacks(nullptr),
-m_options(options)
+m_options(options),
+m_visible(false)
 {
     //read history from file if desired
     if(m_options & ECO_HISTORY)
@@ -36,6 +35,7 @@ m_options(options)
         }
     }
     m_hindex = m_history.size();
+    setWidth(78u);
 }
 
 LuaConsoleModel::~LuaConsoleModel()
@@ -270,7 +270,7 @@ static int ConsoleModel_gc(lua_State * L)
     return 0;
 }
 
-bool LuaConsoleModel::setL(lua_State * L)
+void LuaConsoleModel::setL(lua_State * L)
 {
     //TODO: add support for more L's being linked/using echos at once??
     this->L = L;
@@ -294,16 +294,19 @@ bool LuaConsoleModel::setL(lua_State * L)
         {
             if(luaL_dofile(L, kInitFilename) == LUA_OK)
             {
-                return lua_toboolean(L, -1);
+                m_visible = lua_toboolean(L, -1);
             }
             else
             {
                 coloredEcho(lua_tostring(L, -1), 0xff0000ff);
-                return true; //crapped up init is important so show console right away
+                m_visible = true; //crapped up init is important so show console right away
             }
         }
     }
-    return false;
+    else
+    {
+        m_visible = false;
+    }
 }
 
 void LuaConsoleModel::tryComplete()
@@ -356,6 +359,21 @@ void LuaConsoleModel::setHistory(const std::vector<std::string>& history)
 void LuaConsoleModel::setCallbacks(LuaConsoleCallbacks* callbacks)
 {
     m_callbacks = callbacks;
+}
+
+void LuaConsoleModel::setVisible(bool visible)
+{
+    m_visible = visible;
+}
+
+bool LuaConsoleModel::isVisible() const
+{
+    return m_visible;
+}
+
+void LuaConsoleModel::toggleVisible()
+{
+    m_visible = !m_visible;
 }
 
 } //lua

@@ -1,7 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "LuaHeader.hpp"
-#include "LuaConsole.hpp"
-#include "LuaConsoleView.hpp"
+#include "LuaConsoleModel.hpp"
+#include "LuaSFMLConsoleView.hpp"
+#include "LuaSFMLConsoleInput.hpp"
 
 int main()
 {
@@ -9,8 +10,10 @@ int main()
     app.setFramerateLimit(30u);
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
-    lua::LuaConsole console;
-    console.setL(L);
+    lua::LuaConsoleModel model;
+    model.setL(L);
+    lua::LuaSFMLConsoleInput input(&model);
+    lua::LuaSFMLConsoleView view;
 
     while(app.isOpen())
     {
@@ -18,10 +21,11 @@ int main()
         while(app.pollEvent(eve))
         {
             if(eve.type == sf::Event::Closed) app.close();
-            console.handleEvent(eve);
+            input.handleEvent(eve);
         }
         app.clear();
-        app.draw(console);
+        view.geoRebuild(&model);
+        app.draw(view);
         app.display();
     }
     lua_close(L);

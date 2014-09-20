@@ -12,8 +12,7 @@
 #include <vector>
 
 #include "LuaPointerOwner.hpp"
-
-struct lua_State;
+#include "LuaConsoleCommon.hpp"
 
 namespace lua {
 
@@ -31,8 +30,11 @@ public:
 
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
-    friend class LuaConsole;
 public:
+    LuaConsoleModel(unsigned options = ECO_DEFAULT);
+    ~LuaConsoleModel();
+    void setWidth(std::size_t w);
+    void setL(lua_State * L);
     void moveCursor(int move);
     void readHistory(int change);
     void parseLastLine();
@@ -50,13 +52,11 @@ public:
     const std::vector<std::string>& getHistory() const;
     void setHistory(const std::vector<std::string>& history);
     void setCallbacks(LuaConsoleCallbacks * callbacks);
+    void setVisible(bool visible);
+    bool isVisible() const;
+    void toggleVisible();
 
 private:
-    LuaConsoleModel(unsigned options);
-    ~LuaConsoleModel();
-    void setWidth(std::size_t w);
-    bool setL(lua_State * L);
-
     //for renderer catching:
     unsigned m_dirtyness;
 
@@ -78,6 +78,8 @@ private:
 
     LuaConsoleCallbacks * m_callbacks;
     unsigned m_options;
+
+    bool m_visible;
 
 };
 

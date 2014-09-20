@@ -1,14 +1,14 @@
 /* 
- * File:   LuaConsoleView.hpp
+ * File:   LuaSFMLConsoleView.hpp
  * Author: frex
  *
  * Created on July 19, 2014, 11:34 PM
  */
 
-#ifndef LUACONSOLEVIEW_HPP
-#define	LUACONSOLEVIEW_HPP
+#ifndef LUASFMLCONSOLEVIEW_HPP
+#define	LUASFMLCONSOLEVIEW_HPP
 
-#include "LuaConsoleCommon.hpp"
+#include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Font.hpp>
 
@@ -24,21 +24,19 @@ public:
 
 };
 
-class LuaConsoleView
+class LuaSFMLConsoleView : public sf::Drawable
 {
-    friend class LuaConsole;
 public:
+    LuaSFMLConsoleView(bool defaultfont = true);
+    ~LuaSFMLConsoleView();
     void setBackgroundColor(sf::Color c);
     void setFont(const sf::Font * font);
+    void geoRebuild(const LuaConsoleModel * model); //keep last
 
 private:
-    LuaConsoleView(unsigned options);
-    ~LuaConsoleView();
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void geoRebuild(const LuaConsoleModel& model); //keep last
-
     ScreenCell * getCells(int x, int y);
-    void doMsgs(const LuaConsoleModel& model);
+    void doMsgs(const LuaConsoleModel * model);
 
     unsigned m_lastdirtyness; //for caching/laziness
 
@@ -49,11 +47,12 @@ private:
     const sf::Font * m_font;
     bool m_ownfont;
     sf::VertexArray m_vertices; //vertices with font
-    unsigned m_options;
-
+    bool m_defaultfont;
+    bool m_modelvisible = false;
+    
 };
 
 }
 
-#endif	/* LUACONSOLEVIEW_HPP */
+#endif	/* LUASFMLCONSOLEVIEW_HPP */
 
