@@ -87,7 +87,7 @@ void LuaConsoleModel::readHistory(int change)
 void LuaConsoleModel::parseLastLine()
 {
     assert(L);
-    coloredEcho(m_lastline, m_colors[ECC_CODE]);
+    echoColored(m_lastline, m_colors[ECC_CODE]);
     m_history.push_back(m_lastline);
 
     if(m_history.size() > kHistoryKeptCount) m_history.erase(m_history.begin());
@@ -108,7 +108,7 @@ void LuaConsoleModel::parseLastLine()
         if(!lua::incompleteChunkError(err, len))
         {
             m_buffcmd.clear(); //failed normally - clear it
-            coloredEcho(err, m_colors[ECC_ERROR]);
+            echoColored(err, m_colors[ECC_ERROR]);
         }
 
         lua_pop(L, 1);
@@ -200,16 +200,24 @@ static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredL
 
 void LuaConsoleModel::echo(const std::string& str)
 {
-    coloredEcho(str, m_colors[ECC_ECHO]);
+    echoColored(str, m_colors[ECC_ECHO]);
 }
 
-void LuaConsoleModel::coloredEcho(const std::string& str, unsigned text)
+void LuaConsoleModel::echoColored(const std::string& str, unsigned textcolor)
 {
-    if(str.empty()) return coloredEcho(" ", text); //workaround for a bug??
+    const ColorString color(str.size(), textcolor);
+    echoLine(str, color);
+}
+
+void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors)
+{
+    if(str.empty()) return echoLine(" ", colors); //workaround for a bug??
 
     ColoredLine line;
     line.Text = str;
-    line.Color.resize(str.size(), text);
+    line.Color = colors;
+    line.resizeColorToFitText(m_colors[ECC_ECHO]);
+
     m_msg.push_back(line);
 
     pushWideMessages(line, &m_widemsg, m_w);
@@ -303,7 +311,7 @@ void LuaConsoleModel::setL(lua_State * L)
             }
             else
             {
-                coloredEcho(lua_tostring(L, -1), m_colors[ECC_ERROR]);
+                echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
                 m_visible = true; //crapped up init is important so show console right away
             }
         }
@@ -339,7 +347,7 @@ void LuaConsoleModel::tryComplete()
         {
             msg += " " + possible[i];
         }
-        coloredEcho(msg, m_colors[ECC_HINT]);
+        echoColored(msg, m_colors[ECC_HINT]);
 
         const std::string commonprefix = commonPrefix(possible);
         m_lastline += commonprefix.substr(last.size());

@@ -26,6 +26,11 @@ public:
     std::string Text;
     ColorString Color;
 
+    void resizeColorToFitText(unsigned fill)
+    {
+        Color.resize(Text.size(), fill);
+    }
+
 };
 
 enum ECONSOLE_COLOR
@@ -34,7 +39,7 @@ enum ECONSOLE_COLOR
     ECC_HINT = 1, //color of hints, default green
     ECC_CODE = 2, //color of code typed into console, default yellow
     ECC_ECHO = 3, //color of echo'd text, default white
-    
+
     ECC_COUNT //count, keep last
 };
 
@@ -53,7 +58,8 @@ public:
     void del();
     unsigned getDirtyness()const;
     void echo(const std::string& str);
-    void coloredEcho(const std::string& str, unsigned text);
+    void echoColored(const std::string& str, unsigned textcolor);
+    void echoLine(const std::string& str, const ColorString& colors);
     const std::string& getWideMsg(int index) const;
     const ColorString& getWideColor(int index) const;
     const std::string& getLastLine() const;
@@ -94,7 +100,7 @@ private:
     bool m_visible;
 
     unsigned m_colors[ECC_COUNT];
-    
+
 };
 
 }
