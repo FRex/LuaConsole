@@ -24,6 +24,11 @@ m_callbacks(nullptr),
 m_options(options),
 m_visible(false)
 {
+    m_colors[ECC_ERROR] = 0xff0000ff;
+    m_colors[ECC_HINT] = 0x00ff00ff;
+    m_colors[ECC_CODE] = 0xffff00ff;
+    m_colors[ECC_ECHO] = 0xffffffff;
+
     //read history from file if desired
     if(m_options & ECO_HISTORY)
     {
@@ -82,7 +87,7 @@ void LuaConsoleModel::readHistory(int change)
 void LuaConsoleModel::parseLastLine()
 {
     assert(L);
-    coloredEcho(m_lastline, 0xffff00ff);
+    coloredEcho(m_lastline, m_colors[ECC_CODE]);
     m_history.push_back(m_lastline);
 
     if(m_history.size() > kHistoryKeptCount) m_history.erase(m_history.begin());
@@ -103,7 +108,7 @@ void LuaConsoleModel::parseLastLine()
         if(!lua::incompleteChunkError(err, len))
         {
             m_buffcmd.clear(); //failed normally - clear it
-            coloredEcho(err, 0xff0000ff);
+            coloredEcho(err, m_colors[ECC_ERROR]);
         }
 
         lua_pop(L, 1);
@@ -195,7 +200,7 @@ static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredL
 
 void LuaConsoleModel::echo(const std::string& str)
 {
-    coloredEcho(str, 0xffffffff);
+    coloredEcho(str, m_colors[ECC_ECHO]);
 }
 
 void LuaConsoleModel::coloredEcho(const std::string& str, unsigned text)
@@ -298,7 +303,7 @@ void LuaConsoleModel::setL(lua_State * L)
             }
             else
             {
-                coloredEcho(lua_tostring(L, -1), 0xff0000ff);
+                coloredEcho(lua_tostring(L, -1), m_colors[ECC_ERROR]);
                 m_visible = true; //crapped up init is important so show console right away
             }
         }
@@ -334,7 +339,7 @@ void LuaConsoleModel::tryComplete()
         {
             msg += " " + possible[i];
         }
-        coloredEcho(msg, 0x00ff00ff);
+        coloredEcho(msg, m_colors[ECC_HINT]);
 
         const std::string commonprefix = commonPrefix(possible);
         m_lastline += commonprefix.substr(last.size());
@@ -379,6 +384,22 @@ bool LuaConsoleModel::isVisible() const
 void LuaConsoleModel::toggleVisible()
 {
     m_visible = !m_visible;
+}
+
+void LuaConsoleModel::setColor(ECONSOLE_COLOR which, unsigned color)
+{
+    if(which != ECC_COUNT)
+    {
+        m_colors[which] = color;
+    }
+}
+
+unsigned LuaConsoleModel::getColor(ECONSOLE_COLOR which) const
+{
+    if(which == ECC_COUNT)
+        return 0xffffffff;
+
+    return m_colors[which];
 }
 
 } //lua

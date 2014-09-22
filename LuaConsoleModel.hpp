@@ -28,6 +28,16 @@ public:
 
 };
 
+enum ECONSOLE_COLOR
+{
+    ECC_ERROR = 0, //color of lua errors, default red
+    ECC_HINT = 1, //color of hints, default green
+    ECC_CODE = 2, //color of code typed into console, default yellow
+    ECC_ECHO = 3, //color of echo'd text, default white
+    
+    ECC_COUNT //count, keep last
+};
+
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
 public:
@@ -55,6 +65,8 @@ public:
     void setVisible(bool visible);
     bool isVisible() const;
     void toggleVisible();
+    void setColor(ECONSOLE_COLOR which, unsigned color);
+    unsigned getColor(ECONSOLE_COLOR which) const;
 
 private:
     //for renderer catching:
@@ -81,6 +93,8 @@ private:
 
     bool m_visible;
 
+    unsigned m_colors[ECC_COUNT];
+    
 };
 
 }
