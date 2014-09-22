@@ -46,6 +46,8 @@ enum ECONSOLE_COLOR
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
 public:
+    static LuaConsoleModel * getFromRegistry(lua_State * L);
+    
     LuaConsoleModel(unsigned options = ECO_DEFAULT);
     ~LuaConsoleModel();
     void setWidth(std::size_t w);

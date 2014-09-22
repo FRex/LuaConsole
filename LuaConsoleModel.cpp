@@ -16,6 +16,30 @@ const int kMessagesKeptCount = 100;
 const char * const kHistoryFilename = "luaconsolehistory.txt";
 const char * const kInitFilename = "luaconsoleinit.lua";
 
+//this is the best way to do it when we assume 1 console per lua state
+static int TheLightKey;
+
+inline static void * getLightKey()
+{
+    return &TheLightKey;
+}
+
+LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
+{
+    lua_pushlightuserdata(L, getLightKey());
+    lua_gettable(L, LUA_REGISTRYINDEX);
+
+    //assume that if present and right type this value really is us since no
+    //one has access to our getLightKey easily, might add checking metatable
+    //later too (if/when we stick our metatable in registry) for 100% safety
+    LuaConsoleModel * ret = nullptr;
+    if(lua_type(L, -1) == LUA_TUSERDATA)
+        ret = *static_cast<LuaConsoleModel**>(lua_touserdata(L, -1));
+
+    lua_pop(L, 1);
+    return ret;
+}
+
 LuaConsoleModel::LuaConsoleModel(unsigned options) :
 m_dirtyness(1u), //because 0u is what view starts at
 m_cur(1),
@@ -272,14 +296,18 @@ int LuaConsoleModel::getCurPos() const
 static int ConsoleModel_echo(lua_State * L)
 {
     LuaConsoleModel * m = *static_cast<LuaConsoleModel**>(lua_touserdata(L, lua_upvalueindex(1)));
-    m->echo(luaL_checkstring(L, 1));
+    if(m)
+        m->echo(luaL_checkstring(L, 1));
+
     return 0;
 }
 
 static int ConsoleModel_gc(lua_State * L)
 {
     LuaConsoleModel * m = *static_cast<LuaConsoleModel**>(lua_touserdata(L, 1));
-    if(m) m->disarmLuaPointer();
+    if(m)
+        m->disarmLuaPointer();
+
     return 0;
 }
 
@@ -299,6 +327,10 @@ void LuaConsoleModel::setL(lua_State * L)
         lua_pushcfunction(L, &ConsoleModel_gc);
         lua_settable(L, -3); //table[gc]=ConsoleModel_gc
         lua_setmetatable(L, -2);
+
+        lua_pushlightuserdata(L, getLightKey());
+        lua_pushvalue(L, -2);
+        lua_settable(L, LUA_REGISTRYINDEX);
 
         lua_pushcclosure(L, &ConsoleModel_echo, 1);
         lua_setglobal(L, "echo");
