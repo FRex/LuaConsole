@@ -46,7 +46,8 @@ m_cur(1),
 L(nullptr),
 m_callbacks(nullptr),
 m_options(options),
-m_visible(false)
+m_visible(false),
+m_emptyenterrepeat(true)
 {
     m_colors[ECC_ERROR] = 0xff0000ff;
     m_colors[ECC_HINT] = 0x00ff00ff;
@@ -111,6 +112,10 @@ void LuaConsoleModel::readHistory(int change)
 void LuaConsoleModel::parseLastLine()
 {
     assert(L);
+
+    if(m_lastline.size() == 0u && m_emptyenterrepeat)
+        m_lastline = m_history.back();
+
     echoColored(m_lastline, m_colors[ECC_CODE]);
     m_history.push_back(m_lastline);
 
@@ -440,6 +445,16 @@ unsigned LuaConsoleModel::getColor(ECONSOLE_COLOR which) const
         return 0xffffffff;
 
     return m_colors[which];
+}
+
+void LuaConsoleModel::setEnterRepeatLast(bool eer)
+{
+    m_emptyenterrepeat = eer;
+}
+
+bool LuaConsoleModel::getEnterRepeatLast() const
+{
+    return m_emptyenterrepeat;
 }
 
 } //lua

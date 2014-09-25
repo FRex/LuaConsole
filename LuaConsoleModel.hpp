@@ -75,7 +75,9 @@ public:
     void toggleVisible();
     void setColor(ECONSOLE_COLOR which, unsigned color);
     unsigned getColor(ECONSOLE_COLOR which) const;
-
+    void setEnterRepeatLast(bool eer);
+    bool getEnterRepeatLast() const;
+    
 private:
     //for renderer catching:
     unsigned m_dirtyness;
@@ -103,6 +105,8 @@ private:
 
     unsigned m_colors[ECC_COUNT];
 
+    bool m_emptyenterrepeat;
+    
 };
 
 }
