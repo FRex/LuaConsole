@@ -113,7 +113,7 @@ void LuaConsoleModel::parseLastLine()
 {
     assert(L);
 
-    if(m_lastline.size() == 0u && m_emptyenterrepeat)
+    if(m_lastline.size() == 0u && m_emptyenterrepeat && !m_history.empty())
         m_lastline = m_history.back();
 
     echoColored(m_lastline, m_colors[ECC_CODE]);
