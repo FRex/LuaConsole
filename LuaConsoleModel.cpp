@@ -418,6 +418,9 @@ void LuaConsoleModel::setCallbacks(LuaConsoleCallbacks* callbacks)
 
 void LuaConsoleModel::setVisible(bool visible)
 {
+    if(m_visible != visible)
+        ++m_dirtyness;
+
     m_visible = visible;
 }
 
@@ -429,6 +432,7 @@ bool LuaConsoleModel::isVisible() const
 void LuaConsoleModel::toggleVisible()
 {
     m_visible = !m_visible;
+    ++m_dirtyness;
 }
 
 void LuaConsoleModel::setColor(ECONSOLE_COLOR which, unsigned color)
