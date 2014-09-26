@@ -198,11 +198,11 @@ void LuaSFMLConsoleView::setFont(const sf::Font * font)
 void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 {
     if(!model) return;
+    m_modelvisible = model->isVisible();
     if(m_lastdirtyness == model->getDirtyness()) return; //no need
     if(!m_font) return; //take dirtyness after so setting font late works
 
     m_lastdirtyness = model->getDirtyness();
-    m_modelvisible = model->isVisible();
     if(!m_modelvisible) return;
 
     doMsgs(model);
