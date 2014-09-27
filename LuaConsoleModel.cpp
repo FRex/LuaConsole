@@ -506,7 +506,7 @@ ScreenCell * LuaConsoleModel::getCells(int x, int y) const
     return m_screen + x + 80 * y;
 }
 
-ScreenCell* LuaConsoleModel::getScreenBuffer() const
+const ScreenCell* LuaConsoleModel::getScreenBuffer() const
 {
     updateBuffer();
     return m_screen;
@@ -518,6 +518,14 @@ void LuaConsoleModel::updateBuffer() const
         return;
 
     m_lastupdate = m_dirtyness;
+
+    //first we clear out the top bar
+    for(int i = 1; i < 79; ++i)
+        m_screen[i].Char = kVerticalBarChar;
+
+    for(int i = 1; i < std::min<int>(79, m_title.length() + 1); ++i)
+        m_screen[i].Char = m_title[i - 1];
+
 
     for(int i = 1; i < 22; ++i)
     {
@@ -552,5 +560,19 @@ void LuaConsoleModel::updateBuffer() const
         a[x].Char = getLastLine()[x];
     }
 }
+
+const std::string& LuaConsoleModel::getTitle() const
+{
+    return m_title;
+}
+
+void LuaConsoleModel::setTitle(const std::string& title)
+{
+    if(m_title != title)
+        ++m_dirtyness;
+
+    m_title = title;
+}
+
 
 } //lua

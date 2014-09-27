@@ -85,13 +85,14 @@ public:
     unsigned getColor(ECONSOLE_COLOR which) const;
     void setEnterRepeatLast(bool eer);
     bool getEnterRepeatLast() const;
+    const ScreenCell * getScreenBuffer() const;
+    const std::string& getTitle() const;
+    void setTitle(const std::string& title);
 
-    ScreenCell * getScreenBuffer() const;
-    
 private:
     ScreenCell * getCells(int x, int y) const;
     void updateBuffer() const;
-    
+
     //for renderer catching:
     unsigned m_dirtyness;
     mutable unsigned m_lastupdate;
@@ -122,6 +123,8 @@ private:
     bool m_emptyenterrepeat;
 
     mutable ScreenCell m_screen[80 * 24]; //make this adjustable?
+
+    std::string m_title;
 
 };
 

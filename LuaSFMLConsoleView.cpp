@@ -125,7 +125,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     m_modelvisible = model->isVisible();
     if(!m_modelvisible) return;
 
-    ScreenCell * m_screen = model->getScreenBuffer();
+    const ScreenCell * screen = model->getScreenBuffer();
 
     // Clear the previous geometry
     m_vertices.clear();
@@ -140,7 +140,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 
     for(std::size_t i = 0u; i < 24u * 80u; ++i)
     {
-        sf::Uint32 curChar = m_screen[i].Char;
+        sf::Uint32 curChar = screen[i].Char;
 
         // Apply the kerning offset
         x += m_font->getKerning(prevChar, curChar, kFontSize);
@@ -177,7 +177,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         float v2 = glyph.textureRect.top + glyph.textureRect.height;
 
         //add a quad for the current character
-        const sf::Color col = toColor(m_screen[i].Color);
+        const sf::Color col = toColor(screen[i].Color);
         m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + top), col, sf::Vector2f(u1, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + top), col, sf::Vector2f(u2, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + bottom), col, sf::Vector2f(u2, v2)));

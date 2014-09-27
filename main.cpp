@@ -45,8 +45,19 @@ int demo_rainbowEcho(lua_State * L)
     return 0;
 }
 
+int demo_setTitle(lua_State * L)
+{
+    const char * title = luaL_checkstring(L, 1);
+    lua::LuaConsoleModel * model = lua::LuaConsoleModel::getFromRegistry(L);
+    if(model)
+        model->setTitle(title);
+
+    return 0;
+}
+
 const luaL_Reg demoReg[] = {
     {"rainbowEcho", &demo_rainbowEcho},
+    {"setTitle", &demo_setTitle},
     {nullptr, nullptr}
 };
 
