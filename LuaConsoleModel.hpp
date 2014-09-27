@@ -43,11 +43,19 @@ enum ECONSOLE_COLOR
     ECC_COUNT //count, keep last
 };
 
+class ScreenCell
+{
+public:
+    unsigned Char;
+    unsigned Color;
+
+};
+
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
 public:
     static LuaConsoleModel * getFromRegistry(lua_State * L);
-    
+
     LuaConsoleModel(unsigned options = ECO_DEFAULT);
     ~LuaConsoleModel();
     void setWidth(std::size_t w);
@@ -77,10 +85,16 @@ public:
     unsigned getColor(ECONSOLE_COLOR which) const;
     void setEnterRepeatLast(bool eer);
     bool getEnterRepeatLast() const;
+
+    ScreenCell * getScreenBuffer() const;
     
 private:
+    ScreenCell * getCells(int x, int y) const;
+    void updateBuffer() const;
+    
     //for renderer catching:
     unsigned m_dirtyness;
+    mutable unsigned m_lastupdate;
 
     std::string m_lastline;
     int m_cur;
@@ -106,7 +120,9 @@ private:
     unsigned m_colors[ECC_COUNT];
 
     bool m_emptyenterrepeat;
-    
+
+    mutable ScreenCell m_screen[80 * 24]; //make this adjustable?
+
 };
 
 }

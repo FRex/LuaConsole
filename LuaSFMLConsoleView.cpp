@@ -5,15 +5,6 @@
 
 namespace lua {
 
-//frame/cursor/special unicode chars:
-const sf::Uint32 kFullBlockChar = 0x2588u;
-const sf::Uint32 kVerticalBarChar = 0x2550u;
-const sf::Uint32 kHorizontalBarChar = 0x2551u;
-const sf::Uint32 kULFrameChar = 0x2554u;
-const sf::Uint32 kBLFrameChar = 0x255au;
-const sf::Uint32 kBRFrameChar = 0x255du;
-const sf::Uint32 kURFrameChar = 0x2557u;
-
 const unsigned kFontSize = 18u;
 
 const char * const kFontName = "DejaVuSansMono.ttf";
@@ -37,32 +28,6 @@ m_defaultfont(defaultfont)
     setBackgroundColor(sf::Color(0u, 127u, 127u, 127u)); //mild half cyan
 
     m_vertices.setPrimitiveType(sf::Quads);
-
-    for(int i = 0; i < 24 * 80; ++i)
-    {
-        m_screen[i].Char = ' '; //0x2588
-        m_screen[i].Color = sf::Color::White;
-    }
-
-    //vertical
-    for(int i = 0; i < 80; ++i)
-    {
-        m_screen[i + 80 * 0].Char = kVerticalBarChar;
-        m_screen[i + 80 * 23].Char = kVerticalBarChar;
-    }
-
-    //horizontal
-    for(int i = 0; i < 24; ++i)
-    {
-        m_screen[0 + 80 * i].Char = kHorizontalBarChar;
-        m_screen[79 + 80 * i].Char = kHorizontalBarChar;
-    }
-
-    //corners
-    m_screen[0 + 80 * 0].Char = kULFrameChar;
-    m_screen[0 + 80 * 23].Char = kBLFrameChar;
-    m_screen[79 + 80 * 23].Char = kBRFrameChar;
-    m_screen[79 + 80 * 0].Char = kURFrameChar;
 
     if(m_defaultfont)
     {
@@ -96,51 +61,6 @@ void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states)
 
     //reset original view
     target.setView(v);
-}
-
-ScreenCell * LuaSFMLConsoleView::getCells(int x, int y)
-{
-    assert(0 < x);
-    assert(x < 79);
-    assert(0 < y);
-    assert(y < 23);
-    return m_screen + x + 80 * y;
-}
-
-void LuaSFMLConsoleView::doMsgs(const LuaConsoleModel * model)
-{
-    for(int i = 1; i < 22; ++i)
-    {
-        const std::string& l = model->getWideMsg(i - 22);
-        const ColorString& c = model->getWideColor(i - 22);
-
-        ScreenCell * a = getCells(1, i);
-
-        for(int x = 0; x < kInnerWidth; ++x)
-        {
-            a[x].Char = ' ';
-            a[x].Color = sf::Color::White;
-        }
-
-        for(std::size_t x = 0u; x < l.size(); ++x)
-        {
-            a[x].Char = l[x];
-            a[x].Color = toColor(c[x]);
-        }
-    }
-
-    ScreenCell * a = getCells(1, 22);
-
-    for(int x = 0; x < kInnerWidth; ++x)
-    {
-        a[x].Char = ' ';
-        a[x].Color = sf::Color::White;
-    }
-
-    for(std::size_t x = 0; x < model->getLastLine().size(); ++x)
-    {
-        a[x].Char = model->getLastLine()[x];
-    }
 }
 
 void LuaSFMLConsoleView::setBackgroundColor(sf::Color c)
@@ -205,7 +125,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     m_modelvisible = model->isVisible();
     if(!m_modelvisible) return;
 
-    doMsgs(model);
+    ScreenCell * m_screen = model->getScreenBuffer();
 
     // Clear the previous geometry
     m_vertices.clear();
@@ -228,6 +148,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 
         if(model->getCurPos() + 80u * 22u == i)
         {
+            const sf::Uint32 kFullBlockChar = 0x2588u; //unicode fullblock
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
             m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));
             m_r.setPosition(sf::Vector2f(x + g.bounds.left, y + g.bounds.top));
@@ -256,7 +177,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         float v2 = glyph.textureRect.top + glyph.textureRect.height;
 
         //add a quad for the current character
-        const sf::Color col = m_screen[i].Color;
+        const sf::Color col = toColor(m_screen[i].Color);
         m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + top), col, sf::Vector2f(u1, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + top), col, sf::Vector2f(u2, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + bottom), col, sf::Vector2f(u2, v2)));

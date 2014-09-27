@@ -9,6 +9,15 @@
 
 namespace lua {
 
+//frame/cursor/special unicode chars:
+const unsigned kFullBlockChar = 0x2588u;
+const unsigned kVerticalBarChar = 0x2550u;
+const unsigned kHorizontalBarChar = 0x2551u;
+const unsigned kULFrameChar = 0x2554u;
+const unsigned kBLFrameChar = 0x255au;
+const unsigned kBRFrameChar = 0x255du;
+const unsigned kURFrameChar = 0x2557u;
+
 //how many history items and messages(not wide) to keep
 const int kHistoryKeptCount = 100;
 const int kMessagesKeptCount = 100;
@@ -42,6 +51,7 @@ LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
 
 LuaConsoleModel::LuaConsoleModel(unsigned options) :
 m_dirtyness(1u), //because 0u is what view starts at
+m_lastupdate(0u),
 m_cur(1),
 L(nullptr),
 m_callbacks(nullptr),
@@ -49,6 +59,32 @@ m_options(options),
 m_visible(false),
 m_emptyenterrepeat(true)
 {
+    for(int i = 0; i < 24 * 80; ++i)
+    {
+        m_screen[i].Char = ' '; //0x2588
+        m_screen[i].Color = 0xffffffff;
+    }
+
+    //vertical
+    for(int i = 0; i < 80; ++i)
+    {
+        m_screen[i + 80 * 0].Char = kVerticalBarChar;
+        m_screen[i + 80 * 23].Char = kVerticalBarChar;
+    }
+
+    //horizontal
+    for(int i = 0; i < 24; ++i)
+    {
+        m_screen[0 + 80 * i].Char = kHorizontalBarChar;
+        m_screen[79 + 80 * i].Char = kHorizontalBarChar;
+    }
+
+    //corners
+    m_screen[0 + 80 * 0].Char = kULFrameChar;
+    m_screen[0 + 80 * 23].Char = kBLFrameChar;
+    m_screen[79 + 80 * 23].Char = kBRFrameChar;
+    m_screen[79 + 80 * 0].Char = kURFrameChar;
+
     m_colors[ECC_ERROR] = 0xff0000ff;
     m_colors[ECC_HINT] = 0x00ff00ff;
     m_colors[ECC_CODE] = 0xffff00ff;
@@ -459,6 +495,62 @@ void LuaConsoleModel::setEnterRepeatLast(bool eer)
 bool LuaConsoleModel::getEnterRepeatLast() const
 {
     return m_emptyenterrepeat;
+}
+
+ScreenCell * LuaConsoleModel::getCells(int x, int y) const
+{
+    assert(0 < x);
+    assert(x < 79);
+    assert(0 < y);
+    assert(y < 23);
+    return m_screen + x + 80 * y;
+}
+
+ScreenCell* LuaConsoleModel::getScreenBuffer() const
+{
+    updateBuffer();
+    return m_screen;
+}
+
+void LuaConsoleModel::updateBuffer() const
+{
+    if(m_lastupdate == m_dirtyness)
+        return;
+
+    m_lastupdate = m_dirtyness;
+
+    for(int i = 1; i < 22; ++i)
+    {
+        const std::string& l = getWideMsg(i - 22);
+        const ColorString& c = getWideColor(i - 22);
+
+        ScreenCell * a = getCells(1, i);
+
+        for(int x = 0; x < kInnerWidth; ++x)
+        {
+            a[x].Char = ' ';
+            a[x].Color = 0xffffffff;
+        }
+
+        for(std::size_t x = 0u; x < l.size(); ++x)
+        {
+            a[x].Char = l[x];
+            a[x].Color = c[x];
+        }
+    }
+
+    ScreenCell * a = getCells(1, 22);
+
+    for(int x = 0; x < kInnerWidth; ++x)
+    {
+        a[x].Char = ' ';
+        a[x].Color = 0xffffffff;
+    }
+
+    for(std::size_t x = 0; x < getLastLine().size(); ++x)
+    {
+        a[x].Char = getLastLine()[x];
+    }
 }
 
 } //lua
