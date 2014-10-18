@@ -68,7 +68,7 @@ void prepareHints(lua_State * L, std::string str, std::string& last)
     }
     last = str.substr(begin); //name of last table that we must hint to complete, might be empty
 
-    lua_pushglobaltable(L);
+    bla_lua_pushglobaltable(L);
     for(std::size_t i = 0u; i < tables.size(); ++i)
     {
         if(lua_type(L, -1) != LUA_TTABLE) //if not a table, try fetch meta now

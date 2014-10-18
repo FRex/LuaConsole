@@ -57,7 +57,7 @@ LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
         //if it's equal to what our userdata has, we are 99.9% good to go
         //(the 0.01% is for _insanely_ broken state or someone super actively
         //*sabotaging* us, we can deal with neither)
-        if(lua_equal(L, -1, -2))
+        if(bla_lua_equal(L, -1, -2))
         {
             //get the console itself
             ret = *static_cast<LuaConsoleModel**>(lua_touserdata(L, -3));
@@ -413,7 +413,7 @@ void LuaConsoleModel::setL(lua_State * L)
 
         if(m_options & ECO_INIT)
         {
-            if(luaL_dofile(L, kInitFilename) == LUA_OK)
+            if(luaL_dofile(L, kInitFilename) == BLA_LUA_OK)
             {
                 m_visible = lua_toboolean(L, -1);
             }
@@ -445,7 +445,7 @@ void LuaConsoleModel::tryComplete()
     if(!(normalhints || metahints))
     {
         //if all else fails, assume we want _any_ completion and use global table
-        lua_pushglobaltable(L);
+        bla_lua_pushglobaltable(L);
         collectHints(L, possible, last, false);
     }
 
