@@ -42,9 +42,10 @@ enum ECONSOLE_OPTIONS
 {
     ECO_HISTORY = 1, //load and save history in plaintext file - luaconsolehistory.txt
     ECO_INIT = 2, //load init file - luaconsoleinit.lua
-
+    ECO_START_VISIBLE = 4, //start visible, this will likely get overwritten by init and so on
+    
     //keep last:
-    ECO_DEFAULT = 3, //do all of these helpful things above
+    ECO_DEFAULT = 7, //do all of these helpful things above
     ECO_NONE = 0 //do none of the helpful things, ALL is up to user now
 };
 

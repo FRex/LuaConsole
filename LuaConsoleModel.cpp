@@ -78,7 +78,7 @@ m_cur(1),
 L(nullptr),
 m_w(kInnerWidth),
 m_options(options),
-m_visible(false),
+m_visible(options & ECO_START_VISIBLE),
 m_emptyenterrepeat(true)
 {
     for(int i = 0; i < 24 * 80; ++i)
@@ -177,8 +177,6 @@ void LuaConsoleModel::readHistory(int change)
 
 void LuaConsoleModel::parseLastLine()
 {
-    assert(L);
-
     if(m_lastline.size() == 0u && m_emptyenterrepeat && !m_history.empty())
         m_lastline = m_history.back();
 
@@ -196,23 +194,31 @@ void LuaConsoleModel::parseLastLine()
     m_buffcmd += m_lastline;
     m_buffcmd += '\n';
 
-    if(luaL_dostring(L, m_buffcmd.c_str()))
+    if(L)
     {
-        std::size_t len;
-        const char * err = lua_tolstring(L, -1, &len);
-
-        if(!lua::incompleteChunkError(err, len))
+        if(luaL_dostring(L, m_buffcmd.c_str()))
         {
-            m_buffcmd.clear(); //failed normally - clear it
-            echoColored(err, m_colors[ECC_ERROR]);
-        }
+            std::size_t len;
+            const char * err = lua_tolstring(L, -1, &len);
 
-        lua_pop(L, 1);
-    }
+            if(!lua::incompleteChunkError(err, len))
+            {
+                m_buffcmd.clear(); //failed normally - clear it
+                echoColored(err, m_colors[ECC_ERROR]);
+            }
+
+            lua_pop(L, 1);
+        }//got an error, real or <eof>/incomplete chunk one
+        else
+        {
+            m_buffcmd.clear(); //worked & done - clear it
+        }
+    }//L is not null
     else
     {
-        m_buffcmd.clear(); //worked & done - clear it
-    }
+        //say kindly we are kind of in trouble
+        echoColored("Lua state pointer is NULL, commands have no effect", m_colors[ECC_ERROR]);
+    }//L is null
 
     m_lastline.clear();
     m_cur = 1;
@@ -409,15 +415,18 @@ void LuaConsoleModel::setL(lua_State * L)
                 m_visible = true; //crapped up init is important so show console right away
             }
         }
-    }
-    else
-    {
-        m_visible = false;
-    }
+    }//if L
 }
 
 void LuaConsoleModel::tryComplete()
 {
+    if(!L)
+    {
+        //be nice and say there won't be any completions
+        echoColored("Lua state pointer is NULL, no completion available", m_colors[ECC_ERROR]);
+        return;
+    }
+
     std::vector<std::string> possible; //possible matches
     std::string last;
 
