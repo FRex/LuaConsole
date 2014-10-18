@@ -12,7 +12,8 @@
 #include <vector>
 
 #include "LuaPointerOwner.hpp"
-#include "LuaConsoleCommon.hpp"
+
+struct lua_State;
 
 namespace lua {
 
@@ -32,6 +33,10 @@ public:
     }
 
 };
+
+//constants to move by to get to end or start of prompt line
+const int kCursorHome = -100000;
+const int kCursorEnd = 100000;
 
 enum ECONSOLE_OPTIONS
 {

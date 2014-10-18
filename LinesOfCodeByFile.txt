@@ -1,22 +1,21 @@
 This file is here just for trivia.
 
-http://cloc.sourceforge.net v 1.62  T=0.04 s (362.7 files/s, 42237.4 lines/s)
+http://cloc.sourceforge.net v 1.62  T=0.04 s (278.1 files/s, 34558.7 lines/s)
 -------------------------------------------------------------------------------------
 File                                   blank        comment           code
 -------------------------------------------------------------------------------------
 LuaConsoleModel.cpp                      103             23            455
-LuaSFMLConsoleView.cpp                    37             37            124
+LuaSFMLConsoleView.cpp                    37             37            123
 LuaCompletion.cpp                         19             11            111
-LuaConsoleModel.hpp                       28             10            108
+LuaConsoleModel.hpp                       30             11            110
 main.cpp                                  10              2             95
-LuaSFMLConsoleInput.cpp                    8              1             70
+LuaSFMLConsoleInput.cpp                    8              1             69
 LuaPointerOwner.hpp                       15             12             29
 LuaSFMLConsoleView.hpp                    13              6             28
 LuaHeader.hpp                             16             14             22
 LuaSFMLConsoleInput.hpp                   11              6             18
-LuaCompletion.hpp                          9             12             11
 luaconsoleinit.lua                         2              0             11
-LuaConsoleCommon.hpp                       9              8             10
+LuaCompletion.hpp                         10             12             11
 -------------------------------------------------------------------------------------
-SUM:                                     280            142           1092
+SUM:                                     274            135           1082
 -------------------------------------------------------------------------------------

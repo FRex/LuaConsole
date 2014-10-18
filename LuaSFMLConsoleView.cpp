@@ -1,6 +1,5 @@
 #include "LuaSFMLConsoleView.hpp"
 #include "LuaConsoleModel.hpp"
-#include "LuaConsoleCommon.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 
 namespace lua {

@@ -1,6 +1,5 @@
 #include "LuaSFMLConsoleInput.hpp"
 #include "LuaConsoleModel.hpp"
-#include "LuaConsoleCommon.hpp"
 
 namespace lua {
 

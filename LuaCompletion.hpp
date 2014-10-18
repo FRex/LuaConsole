@@ -10,7 +10,8 @@
 
 #include <string>
 #include <vector>
-#include "LuaConsoleCommon.hpp"
+
+struct lua_State;
 
 namespace lua {
 
