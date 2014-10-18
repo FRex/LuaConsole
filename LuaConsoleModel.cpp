@@ -112,6 +112,8 @@ m_emptyenterrepeat(true)
     m_colors[ECC_CODE] = 0xffff00ff;
     m_colors[ECC_ECHO] = 0xffffffff;
     m_colors[ECC_PROMPT] = 0xffffffff;
+    m_colors[ECC_TITLE] = 0xffffffff;
+    m_colors[ECC_FRAME] = 0xa9a9a9ff;
 
     //read history from file if desired
     if(m_options & ECO_HISTORY)
@@ -544,8 +546,24 @@ void LuaConsoleModel::updateBuffer() const
     for(int i = 1; i < 79; ++i)
         m_screen[i].Char = kVerticalBarChar;
 
+    //then we ensure frame is all OK colored, since setting title overwrites colors
+    for(int i = 0; i < 80; ++i)
+    {
+        m_screen[i + 0 * 80].Color = m_colors[ECC_FRAME];
+        m_screen[i + 23 * 80].Color = m_colors[ECC_FRAME];
+    }
+    for(int i = 0; i < 23; ++i)
+    {
+        m_screen[0 + i * 80].Color = m_colors[ECC_FRAME];
+        m_screen[79 + i * 80].Color = m_colors[ECC_FRAME];
+    }
+
+    //now we can set the title and its' color
     for(int i = 1; i < std::min<int>(79, m_title.length() + 1); ++i)
+    {
         m_screen[i].Char = m_title[i - 1];
+        m_screen[i].Color = m_colors[ECC_TITLE];
+    }
 
 
     for(int i = 1; i < 22; ++i)

@@ -55,6 +55,8 @@ enum ECONSOLE_COLOR
     ECC_CODE = 2, //color of code typed into console, default yellow
     ECC_ECHO = 3, //color of echo'd text, default white
     ECC_PROMPT = 4, //color of the prompt line text, default white
+    ECC_TITLE = 5, //color of the title, default white
+    ECC_FRAME = 6, //color of the title, default darkgrey
 
     ECC_COUNT //count, keep last
 };
