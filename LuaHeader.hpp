@@ -27,6 +27,13 @@ inline bool incompleteChunkError(const char * err, std::size_t len)
     return 0 == std::strcmp(err + len - 5u, "<eof>");
 }
 
+//5.2 deprecated lua_equal so we use lua_compare to reimplement it:
+
+inline int lua_equal(lua_State * L, int index1, int index2)
+{
+    return lua_compare(L, index1, index2, LUA_OPEQ);
+}
+
 #endif //LUA 5.2
 
 //------------------------------------------------------------------------------

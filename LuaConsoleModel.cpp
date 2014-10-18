@@ -40,17 +40,34 @@ inline static void * getLightKey()
 
 LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
 {
+    //get our console from the registry
     lua_pushlightuserdata(L, getLightKey());
     lua_gettable(L, LUA_REGISTRYINDEX);
 
-    //assume that if present and right type this value really is us since no
-    //one has access to our getLightKey easily, might add checking metatable
-    //later too (if/when we stick our metatable in registry) for 100% safety
+    //if we fail we return null
     LuaConsoleModel * ret = nullptr;
-    if(lua_type(L, -1) == LUA_TUSERDATA)
-        ret = *static_cast<LuaConsoleModel**>(lua_touserdata(L, -1));
 
-    lua_pop(L, 1);
+    //if we got userdata and it has a metatable
+    if(lua_type(L, -1) == LUA_TUSERDATA && lua_getmetatable(L, -1))
+    {
+        //we now got the ud's table pushed (since getmetatable returned true)
+        //so look up the _real_ console table in registry
+        lua_getfield(L, LUA_REGISTRYINDEX, kMetaname);
+
+        //if it's equal to what our userdata has, we are 99.9% good to go
+        //(the 0.01% is for _insanely_ broken state or someone super actively
+        //*sabotaging* us, we can deal with neither)
+        if(lua_equal(L, -1, -2))
+        {
+            //get the console itself
+            ret = *static_cast<LuaConsoleModel**>(lua_touserdata(L, -3));
+        }
+
+        //pop both tables, ours and regs
+        lua_pop(L, 2);
+    }
+
+    lua_pop(L, 1); //pop the console itself
     return ret;
 }
 
@@ -364,7 +381,8 @@ void LuaConsoleModel::setL(lua_State * L)
         setLuaPointer(ptr);
 
         //make and set new metatable with gc in it
-        lua_newtable(L); //table
+
+        luaL_newmetatable(L, kMetaname); //table
         lua_pushliteral(L, "__gc");
         lua_pushcfunction(L, &ConsoleModel_gc);
         lua_settable(L, -3); //table[gc]=ConsoleModel_gc
