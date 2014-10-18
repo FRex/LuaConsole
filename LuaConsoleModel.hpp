@@ -71,27 +71,17 @@ public:
 class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
 {
 public:
+    //general api:
     static LuaConsoleModel * getFromRegistry(lua_State * L);
-
     LuaConsoleModel(unsigned options = ECO_DEFAULT);
     ~LuaConsoleModel();
     void setWidth(std::size_t w);
     void setL(lua_State * L);
-    void moveCursor(int move);
-    void readHistory(int change);
-    void parseLastLine();
-    void addChar(char c);
-    void backspace();
-    void del();
-    unsigned getDirtyness()const;
     void echo(const std::string& str);
     void echoColored(const std::string& str, unsigned textcolor);
     void echoLine(const std::string& str, const ColorString& colors);
-    const std::string& getWideMsg(int index) const;
-    const ColorString& getWideColor(int index) const;
-    const std::string& getLastLine() const;
-    int getCurPos() const;
-    void tryComplete();
+    const std::string& getTitle() const;
+    void setTitle(const std::string& title);
     const std::vector<std::string>& getHistory() const;
     void setHistory(const std::vector<std::string>& history);
     void setCallback(ECALLBACK_TYPE type, CallbackFunc func, void * data);
@@ -102,47 +92,51 @@ public:
     unsigned getColor(ECONSOLE_COLOR which) const;
     void setEnterRepeatLast(bool eer);
     bool getEnterRepeatLast() const;
+
+
+    //api for controller:
+    void moveCursor(int move);
+    void readHistory(int change);
+    void parseLastLine();
+    void addChar(char c);
+    void backspace();
+    void del();
+    void tryComplete();
+
+
+    //api for view:
+    unsigned getDirtyness()const;
+    int getCurPos() const;
     const ScreenCell * getScreenBuffer() const;
-    const std::string& getTitle() const;
-    void setTitle(const std::string& title);
 
 private:
     ScreenCell * getCells(int x, int y) const;
-
-    CallbackFunc m_callbackfuncs[ECT_COUNT];
-    void * m_callbackdata[ECT_COUNT];
-
+    const std::string& getWideMsg(int index) const;
+    const ColorString& getWideColor(int index) const;
+    const std::string& getLastLine() const;
     void updateBuffer() const;
-    unsigned m_dirtyness;
-    mutable unsigned m_lastupdate;
 
-    std::string m_lastline;
-    int m_cur;
 
-    std::string m_buffcmd;
-    lua_State * L;
-
-    std::vector<std::string> m_history;
-    int m_hindex;
-
-    std::vector<ColoredLine> m_msg;
-
-    int m_w;
-    std::vector<ColoredLine> m_widemsg;
-
-    const ColoredLine m_empty;
-
-    unsigned m_options;
-
-    bool m_visible;
-
-    unsigned m_colors[ECC_COUNT];
-
-    bool m_emptyenterrepeat;
-
-    mutable ScreenCell m_screen[80 * 24]; //make this adjustable?
-
-    std::string m_title;
+    CallbackFunc m_callbackfuncs[ECT_COUNT]; //callbakcs called on certain events
+    void * m_callbackdata[ECT_COUNT]; //data for callbacks
+    unsigned m_dirtyness; //our current dirtyness
+    mutable unsigned m_lastupdate; //when was last update of buffer
+    std::string m_lastline; //the prompt line, colorless
+    int m_cur; //position of cursor in last line
+    std::string m_buffcmd; //command buffer for uncompleted chunks
+    lua_State * L; //lua state we are talking with
+    std::vector<std::string> m_history; //the history buffer
+    int m_hindex; //index in history
+    std::vector<ColoredLine> m_msg; //actual messages that got echoed
+    int m_w; //width of console, not counting the borders
+    std::vector<ColoredLine> m_widemsg; //messages adjusted/split to fit width of console
+    const ColoredLine m_empty; //empty line constant
+    const unsigned m_options; //options passed at construction
+    bool m_visible; //are we visible?
+    unsigned m_colors[ECC_COUNT]; //colors of various kinds of text
+    bool m_emptyenterrepeat; //should pressing enter with empty prompt repeat last line?
+    mutable ScreenCell m_screen[80 * 24]; //screen buff = chars && colors --make this adjustable?
+    std::string m_title; //title of the console
 
 };
 
