@@ -28,13 +28,12 @@ public:
 
     ~LuaPointerOwner()
     {
-        if(m_luaptr)
-            (*m_luaptr) = nullptr;
+        clearLuaPointer();
     }
 
     void setLuaPointer(T ** ptr)
     {
-        assert(!m_luaptr);
+        clearLuaPointer();
         m_luaptr = ptr;
     }
 
@@ -43,6 +42,14 @@ public:
     void disarmLuaPointer()
     {
         m_luaptr = nullptr;
+    }
+
+    //method to call when we want to 'unlink' the instance we are managing
+
+    void clearLuaPointer()
+    {
+        if(m_luaptr)
+            (*m_luaptr) = nullptr;
     }
 
 private:

@@ -372,8 +372,11 @@ static int ConsoleModel_echo(lua_State * L)
 static int ConsoleModel_gc(lua_State * L)
 {
     LuaConsoleModel * m = *static_cast<LuaConsoleModel**>(lua_touserdata(L, 1));
+
+    //rationale: assume if our instance in registry and all references of it 
+    //got destroyed we are not able to or supposed to use the same L anymore
     if(m)
-        m->disarmLuaPointer();
+        m->setL(nullptr);
 
     return 0;
 }
@@ -382,11 +385,16 @@ void LuaConsoleModel::setL(lua_State * L)
 {
     //TODO: add support for more L's being linked/using echos at once??
     this->L = L;
+    
+    //clear and disarm, so the state that used us before is no longer able to
+    m_luaptr.clearLuaPointer();
+    m_luaptr.disarmLuaPointer();
+
     if(L)
     {
         LuaConsoleModel ** ptr = static_cast<LuaConsoleModel**>(lua_newuserdata(L, sizeof (LuaConsoleModel*)));
         (*ptr) = this;
-        setLuaPointer(ptr);
+        m_luaptr.setLuaPointer(ptr);
 
         //make and set new metatable with gc in it
 

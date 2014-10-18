@@ -43,7 +43,7 @@ enum ECONSOLE_OPTIONS
     ECO_HISTORY = 1, //load and save history in plaintext file - luaconsolehistory.txt
     ECO_INIT = 2, //load init file - luaconsoleinit.lua
     ECO_START_VISIBLE = 4, //start visible, this will likely get overwritten by init and so on
-    
+
     //keep last:
     ECO_DEFAULT = 7, //do all of these helpful things above
     ECO_NONE = 0 //do none of the helpful things, ALL is up to user now
@@ -77,7 +77,7 @@ public:
 
 };
 
-class LuaConsoleModel : public LuaPointerOwner<LuaConsoleModel>
+class LuaConsoleModel
 {
 public:
     //general api:
@@ -145,6 +145,7 @@ private:
     bool m_emptyenterrepeat; //should pressing enter with empty prompt repeat last line?
     mutable ScreenCell m_screen[80 * 24]; //screen buff = chars && colors --make this adjustable?
     std::string m_title; //title of the console
+    LuaPointerOwner<LuaConsoleModel> m_luaptr; //the lua pointer of ours that handles two way deletions
 
 };
 
