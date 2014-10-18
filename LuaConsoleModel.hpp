@@ -16,8 +16,8 @@
 
 namespace lua {
 
-class LuaConsoleCallbacks;
-
+class LuaConsoleModel;
+typedef void (*CallbackFunc)(LuaConsoleModel*, void*);
 typedef std::basic_string<unsigned> ColorString;
 
 class ColoredLine
@@ -41,6 +41,13 @@ enum ECONSOLE_COLOR
     ECC_ECHO = 3, //color of echo'd text, default white
 
     ECC_COUNT //count, keep last
+};
+
+enum ECALLBACK_TYPE
+{
+    ECT_NEWHISTORY = 0,
+
+    ECT_COUNT //count, keep last
 };
 
 class ScreenCell
@@ -77,7 +84,7 @@ public:
     void tryComplete();
     const std::vector<std::string>& getHistory() const;
     void setHistory(const std::vector<std::string>& history);
-    void setCallbacks(LuaConsoleCallbacks * callbacks);
+    void setCallback(ECALLBACK_TYPE type, CallbackFunc func, void * data);
     void setVisible(bool visible);
     bool isVisible() const;
     void toggleVisible();
@@ -91,9 +98,11 @@ public:
 
 private:
     ScreenCell * getCells(int x, int y) const;
-    void updateBuffer() const;
 
-    //for renderer catching:
+    CallbackFunc m_callbackfuncs[ECT_COUNT];
+    void * m_callbackdata[ECT_COUNT];
+
+    void updateBuffer() const;
     unsigned m_dirtyness;
     mutable unsigned m_lastupdate;
 
@@ -113,7 +122,6 @@ private:
 
     const ColoredLine m_empty;
 
-    LuaConsoleCallbacks * m_callbacks;
     unsigned m_options;
 
     bool m_visible;

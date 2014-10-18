@@ -1,7 +1,6 @@
 #include "LuaConsoleModel.hpp"
 #include "LuaHeader.hpp"
 #include "LuaCompletion.hpp"
-#include "LuaConsoleCallbacks.hpp"
 #include <cstring>
 #include <algorithm>
 #include <sstream>
@@ -54,7 +53,6 @@ m_dirtyness(1u), //because 0u is what view starts at
 m_lastupdate(0u),
 m_cur(1),
 L(nullptr),
-m_callbacks(nullptr),
 m_options(options),
 m_visible(false),
 m_emptyenterrepeat(true)
@@ -102,6 +100,12 @@ m_emptyenterrepeat(true)
     }
     m_hindex = m_history.size();
     setWidth(78u);
+
+    for(int i = 0; i < ECT_COUNT; ++i)
+    {
+        m_callbackdata[i] = nullptr;
+        m_callbackfuncs[i] = nullptr;
+    }
 }
 
 LuaConsoleModel::~LuaConsoleModel()
@@ -160,7 +164,8 @@ void LuaConsoleModel::parseLastLine()
     m_hindex = m_history.size();
 
     //call before running, in case crash, exit etc.
-    if(m_callbacks) m_callbacks->onNewHistoryItem();
+    if(m_callbackfuncs[ECT_NEWHISTORY])
+        m_callbackfuncs[ECT_NEWHISTORY](this, m_callbackdata[ECT_NEWHISTORY]);
 
     m_buffcmd += m_lastline;
     m_buffcmd += '\n';
@@ -447,9 +452,13 @@ void LuaConsoleModel::setHistory(const std::vector<std::string>& history)
     m_hindex = history.size();
 }
 
-void LuaConsoleModel::setCallbacks(LuaConsoleCallbacks* callbacks)
+void LuaConsoleModel::setCallback(ECALLBACK_TYPE type, CallbackFunc func, void* data)
 {
-    m_callbacks = callbacks;
+    if(type == ECT_COUNT)
+        return;
+
+    m_callbackfuncs[type] = func;
+    m_callbackdata[type] = data;
 }
 
 void LuaConsoleModel::setVisible(bool visible)
@@ -474,9 +483,7 @@ void LuaConsoleModel::toggleVisible()
 void LuaConsoleModel::setColor(ECONSOLE_COLOR which, unsigned color)
 {
     if(which != ECC_COUNT)
-    {
         m_colors[which] = color;
-    }
 }
 
 unsigned LuaConsoleModel::getColor(ECONSOLE_COLOR which) const
