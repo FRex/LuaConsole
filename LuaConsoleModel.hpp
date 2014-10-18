@@ -75,7 +75,6 @@ public:
     static LuaConsoleModel * getFromRegistry(lua_State * L);
     LuaConsoleModel(unsigned options = ECO_DEFAULT);
     ~LuaConsoleModel();
-    void setWidth(std::size_t w);
     void setL(lua_State * L);
     void echo(const std::string& str);
     void echoColored(const std::string& str, unsigned textcolor);

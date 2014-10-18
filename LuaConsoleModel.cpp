@@ -8,6 +8,9 @@
 
 namespace lua {
 
+//how wide is console -- this has to be adjustable later
+const int kInnerWidth = 78;
+
 //frame/cursor/special unicode chars:
 const unsigned kFullBlockChar = 0x2588u;
 const unsigned kVerticalBarChar = 0x2550u;
@@ -53,6 +56,7 @@ m_dirtyness(1u), //because 0u is what view starts at
 m_lastupdate(0u),
 m_cur(1),
 L(nullptr),
+m_w(kInnerWidth),
 m_options(options),
 m_visible(false),
 m_emptyenterrepeat(true)
@@ -99,7 +103,6 @@ m_emptyenterrepeat(true)
         }
     }
     m_hindex = m_history.size();
-    setWidth(78u);
 
     for(int i = 0; i < ECT_COUNT; ++i)
     {
@@ -298,17 +301,6 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
         m_msg.erase(m_msg.begin());
         m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
-
-    ++m_dirtyness;
-}
-
-void LuaConsoleModel::setWidth(std::size_t w)
-{
-    m_w = w;
-    m_widemsg.clear();
-
-    for(const ColoredLine& line : m_msg)
-        pushWideMessages(line, &m_widemsg, m_w);
 
     ++m_dirtyness;
 }

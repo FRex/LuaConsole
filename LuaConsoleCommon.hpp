@@ -17,7 +17,6 @@ namespace lua {
 
 const int kCursorHome = -100000;
 const int kCursorEnd = 100000;
-const int kInnerWidth = 78;
 
 //names of files are hardcoded in view and model .cpp files
 
