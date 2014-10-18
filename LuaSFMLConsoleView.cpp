@@ -2,7 +2,7 @@
 #include "LuaConsoleModel.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
 
-namespace lua {
+namespace blua {
 
 const unsigned kFontSize = 18u;
 
@@ -193,5 +193,5 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     }
 }
 
-} //lua
+} //blua
 

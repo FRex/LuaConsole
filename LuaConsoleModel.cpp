@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 
-namespace lua {
+namespace blua {
 
 //how wide is console -- this has to be adjustable later
 const int kInnerWidth = 78;
@@ -201,7 +201,7 @@ void LuaConsoleModel::parseLastLine()
             std::size_t len;
             const char * err = lua_tolstring(L, -1, &len);
 
-            if(!lua::incompleteChunkError(err, len))
+            if(!blua::incompleteChunkError(err, len))
             {
                 m_buffcmd.clear(); //failed normally - clear it
                 echoColored(err, m_colors[ECC_ERROR]);
@@ -631,4 +631,4 @@ void LuaConsoleModel::setTitle(const std::string& title)
 }
 
 
-} //lua
+} //blua

@@ -1,7 +1,7 @@
 #include "LuaSFMLConsoleInput.hpp"
 #include "LuaConsoleModel.hpp"
 
-namespace lua {
+namespace blua {
 
 LuaSFMLConsoleInput::LuaSFMLConsoleInput(LuaConsoleModel* model) :
 m_model(model) { }
@@ -75,4 +75,4 @@ void LuaSFMLConsoleInput::handleKeyEvent(sf::Event event)
     }
 }
 
-} //lua
+} //blua

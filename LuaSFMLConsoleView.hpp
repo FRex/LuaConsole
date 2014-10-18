@@ -12,7 +12,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Font.hpp>
 
-namespace lua {
+namespace blua {
 
 class LuaConsoleModel;
 
@@ -41,7 +41,7 @@ private:
 
 };
 
-}
+} //blua
 
 #endif	/* LUASFMLCONSOLEVIEW_HPP */
 

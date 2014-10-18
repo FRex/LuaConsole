@@ -10,7 +10,7 @@
 
 #include <SFML/Window/Event.hpp>
 
-namespace lua{
+namespace blua{
 
 class LuaConsoleModel;
 
@@ -29,7 +29,7 @@ private:
     
 };
 
-} //lua
+} //blua
 
 #endif	/* LUASFMLCONSOLEINPUT_HPP */
 

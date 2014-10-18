@@ -33,10 +33,10 @@ int demo_rainbowEcho(lua_State * L)
 {
     std::size_t len;
     const char * msg = luaL_checklstring(L, 1, &len);
-    lua::LuaConsoleModel * model = lua::LuaConsoleModel::getFromRegistry(L);
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
     if(model)
     {
-        lua::ColorString color(len, 0x0);
+        blua::ColorString color(len, 0x0);
         for(std::size_t i = 0u; i < len; ++i)
             color[i] = colors[std::rand() % kColorsCount];
 
@@ -48,7 +48,7 @@ int demo_rainbowEcho(lua_State * L)
 int demo_setTitle(lua_State * L)
 {
     const char * title = luaL_checkstring(L, 1);
-    lua::LuaConsoleModel * model = lua::LuaConsoleModel::getFromRegistry(L);
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
     if(model)
         model->setTitle(title);
 
@@ -85,10 +85,10 @@ int main()
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
     openDemo(L);
-    lua::LuaConsoleModel model;
+    blua::LuaConsoleModel model;
     model.setL(L);
-    lua::LuaSFMLConsoleInput input(&model);
-    lua::LuaSFMLConsoleView view;
+    blua::LuaSFMLConsoleInput input(&model);
+    blua::LuaSFMLConsoleView view;
 
     while(app.isOpen())
     {

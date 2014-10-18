@@ -15,7 +15,7 @@
 
 struct lua_State;
 
-namespace lua {
+namespace blua {
 
 class LuaConsoleModel;
 typedef void (*CallbackFunc)(LuaConsoleModel*, void*);
@@ -149,7 +149,7 @@ private:
 
 };
 
-}
+} //blua
 
 #endif	/* LUACONSOLEMODEL_HPP */
 

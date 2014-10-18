@@ -13,7 +13,7 @@
 
 struct lua_State;
 
-namespace lua {
+namespace blua {
 
 //splits the 'str' string, fill the 'last' string with part user needs completed
 //and pushes right table/value on top of the stack
@@ -27,7 +27,7 @@ bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::
 //get the common prefix of all strings
 std::string commonPrefix(const std::vector<std::string>& possible);
 
-}
+} //blua
 
 #endif	/* LUACOMPLETION_HPP */
 

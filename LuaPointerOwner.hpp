@@ -10,7 +10,7 @@
 
 #include <cassert>
 
-namespace lua {
+namespace blua {
 
 //this class can be inherited or used as a member variable
 //it will null out the pointer it is point to at destruction
@@ -57,7 +57,7 @@ private:
 
 };
 
-}
+} //blua
 
 #endif	/* LUAPOINTEROWNER_HPP */
 

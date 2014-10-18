@@ -3,7 +3,7 @@
 #include <sstream>
 #include <algorithm>
 
-namespace lua {
+namespace blua {
 
 //TODO: these still need some work to be more accurate
 
@@ -138,4 +138,4 @@ std::string commonPrefix(const std::vector<std::string>& possible)
     return ret;
 }
 
-} //lua
+} //blua

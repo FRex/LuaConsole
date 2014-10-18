@@ -31,14 +31,14 @@
 
 #if (LUA_VERSION_NUM == 502)
 
-namespace lua {
+namespace blua {
 
 inline bool incompleteChunkError(const char * err, std::size_t len)
 {
     return 0 == std::strcmp(err + len - 5u, "<eof>");
 }
 
-} //lua
+} //blua
 
 //5.2 deprecated lua_equal so we use lua_compare to reimplement it:
 
@@ -57,14 +57,14 @@ inline int bla_lua_equal(lua_State * L, int index1, int index2)
 //LUA JIT AND 5.1 --------------------------------------------------------------
 #if (LUA_VERSION_NUM == 501)
 
-namespace lua {
+namespace blua {
 
 inline bool incompleteChunkError(const char * err, std::size_t len)
 {
     return 0 == std::strcmp(err + len - 7u, "'<eof>'");
 }
 
-} //lua
+} //blua
 
 #define bla_lua_equal lua_equal
 
