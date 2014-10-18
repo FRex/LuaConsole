@@ -11,6 +11,9 @@ namespace lua {
 //how wide is console -- this has to be adjustable later
 const int kInnerWidth = 78;
 
+//name of metatable/type in registry that our console is using
+const char * const kMetaname = "bla_LuaConsole";
+
 //frame/cursor/special unicode chars:
 const unsigned kFullBlockChar = 0x2588u;
 const unsigned kVerticalBarChar = 0x2550u;
@@ -91,6 +94,7 @@ m_emptyenterrepeat(true)
     m_colors[ECC_HINT] = 0x00ff00ff;
     m_colors[ECC_CODE] = 0xffff00ff;
     m_colors[ECC_ECHO] = 0xffffffff;
+    m_colors[ECC_PROMPT] = 0xffffffff;
 
     //read history from file if desired
     if(m_options & ECO_HISTORY)
@@ -551,7 +555,7 @@ void LuaConsoleModel::updateBuffer() const
     for(int x = 0; x < kInnerWidth; ++x)
     {
         a[x].Char = ' ';
-        a[x].Color = 0xffffffff;
+        a[x].Color = m_colors[ECC_PROMPT];
     }
 
     for(std::size_t x = 0; x < getLastLine().size(); ++x)

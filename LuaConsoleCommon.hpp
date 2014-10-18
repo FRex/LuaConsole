@@ -15,6 +15,7 @@ struct lua_State;
 
 namespace lua {
 
+//constants to move by to get to end or start of prompt line
 const int kCursorHome = -100000;
 const int kCursorEnd = 100000;
 
