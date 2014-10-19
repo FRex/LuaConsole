@@ -21,11 +21,14 @@ public:
     void setModel(LuaConsoleModel * model);
     LuaConsoleModel * getModel() const;
     bool handleEvent(sf::Event event);
+    void setToggleKey(sf::Keyboard::Key key);
+    sf::Keyboard::Key getToggleKey() const;
     
 private:
     void handleKeyEvent(sf::Event eve);
         
     LuaConsoleModel * m_model;
+    sf::Keyboard::Key m_togglekey;
     
 };
 

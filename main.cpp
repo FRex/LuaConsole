@@ -111,6 +111,7 @@ int main()
     //create the input which will filter and translate sf::Event s
     //into calls to model api functions that move the cursor, type characters etc.
     blua::LuaSFMLConsoleInput input(&model);
+    input.setToggleKey(sf::Keyboard::LSystem);
 
     //since view doesnt use any methods of LuaConsoleModel it doesnt need any
     //pointer to it, this class handles the font and drawing itself,

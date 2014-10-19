@@ -4,7 +4,8 @@
 namespace blua {
 
 LuaSFMLConsoleInput::LuaSFMLConsoleInput(LuaConsoleModel* model) :
-m_model(model) { }
+m_model(model),
+m_togglekey(sf::Keyboard::Unknown) { }
 
 void LuaSFMLConsoleInput::setModel(LuaConsoleModel* model)
 {
@@ -18,7 +19,15 @@ LuaConsoleModel* LuaSFMLConsoleInput::getModel() const
 
 bool LuaSFMLConsoleInput::handleEvent(sf::Event event)
 {
-    if(!m_model || !m_model->isVisible()) return false;
+    if(!m_model)
+        return false;
+
+    if(m_togglekey != sf::Keyboard::Unknown && event.type == sf::Event::KeyPressed && event.key.code == m_togglekey)
+        m_model->toggleVisible();
+
+    if(!m_model->isVisible())
+        return false;
+
     switch(event.type)
     {
         case sf::Event::KeyPressed:
@@ -73,6 +82,16 @@ void LuaSFMLConsoleInput::handleKeyEvent(sf::Event event)
             //TODO:optionally do not consume all keys?
             break;
     }
+}
+
+void LuaSFMLConsoleInput::setToggleKey(sf::Keyboard::Key key)
+{
+    m_togglekey = key;
+}
+
+sf::Keyboard::Key LuaSFMLConsoleInput::getToggleKey() const
+{
+    return m_togglekey;
 }
 
 } //blua
