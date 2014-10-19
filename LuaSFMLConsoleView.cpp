@@ -41,11 +41,9 @@ LuaSFMLConsoleView::~LuaSFMLConsoleView()
     if(m_ownfont) delete m_font;
 }
 
-void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates /* states --unused */) const
 {
     if(!m_font || !m_modelvisible) return;
-
-    (void)states;
 
     //save old view and set "normal" view for our drawing
     sf::View v = target.getView();
