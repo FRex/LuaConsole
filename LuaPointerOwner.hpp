@@ -16,17 +16,31 @@ namespace blua {
 //it will null out the pointer it is point to at destruction
 //useful to prevent accessing invalid pointer that was pushed to lua
 //it is noncopyable as that would cause errors
+//
+//it's used internally by lua console model but it's not in 'priv' namespace
+//because it can just as well be used by anyone, since it has no console
+//specific features/constraints
+//since it requires using full userdata and makes class uncopyable
+//it's not suitable for small light classes
 
 template <typename T> class LuaPointerOwner
 {
 public:
 
+    //default ctor, with null 'unarmed' pointer
+
     LuaPointerOwner() : m_luaptr(0x0) { }
+
+    //destructor, will null out the pointer if we have one so anyone holding
+    //the full userdata and trying to see the ptr in it will see null
 
     ~LuaPointerOwner()
     {
         clearLuaPointer();
     }
+
+    //set lua ptr, use this with full userdata in which you store the pointer itself
+    //use as such: setLuaPointer(static_cast<T**>(lua_newuserdata(L, sizeof (T*)))
 
     void setLuaPointer(T ** ptr)
     {
@@ -34,7 +48,8 @@ public:
         m_luaptr = ptr;
     }
 
-    //method to call when __gc is ran, to not null out memory no longer in use
+    //method to call when __gc is ran, to not try null out memory no longer in use
+    //later when we ourselves are destroyed
 
     void disarmLuaPointer()
     {
@@ -42,6 +57,8 @@ public:
     }
 
     //method to call when we want to 'unlink' the instance we are managing
+    //after that, anyone inspecting the ptr in our userdata will see null and can
+    //react (or crash...) easily thanks to that
 
     void clearLuaPointer()
     {
