@@ -21,7 +21,6 @@ class LuaSFMLConsoleView : public sf::Drawable
 public:
     LuaSFMLConsoleView(bool defaultfont = true);
     ~LuaSFMLConsoleView();
-    void setBackgroundColor(sf::Color c);
     void setFont(const sf::Font * font);
     void geoRebuild(const LuaConsoleModel * model); //keep last
 

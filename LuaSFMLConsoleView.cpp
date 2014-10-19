@@ -24,8 +24,6 @@ m_font(nullptr),
 m_ownfont(false),
 m_defaultfont(defaultfont)
 {
-    setBackgroundColor(sf::Color(0u, 127u, 127u, 127u)); //mild half cyan
-
     m_vertices.setPrimitiveType(sf::Quads);
 
     if(m_defaultfont)
@@ -60,11 +58,6 @@ void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states)
 
     //reset original view
     target.setView(v);
-}
-
-void LuaSFMLConsoleView::setBackgroundColor(sf::Color c)
-{
-    m_consolecolor = c;
 }
 
 void LuaSFMLConsoleView::setFont(const sf::Font * font)
@@ -117,6 +110,7 @@ void LuaSFMLConsoleView::setFont(const sf::Font * font)
 void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 {
     if(!model) return;
+    m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
     if(m_lastdirtyness == model->getDirtyness()) return; //no need
     if(!m_font) return; //take dirtyness after so setting font late works
 

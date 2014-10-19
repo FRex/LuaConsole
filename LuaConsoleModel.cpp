@@ -114,6 +114,7 @@ m_emptyenterrepeat(true)
     m_colors[ECC_PROMPT] = 0xffffffff;
     m_colors[ECC_TITLE] = 0xffffffff;
     m_colors[ECC_FRAME] = 0xa9a9a9ff;
+    m_colors[ECC_BACKGROUND] = 0x007f7f7f;
 
     //read history from file if desired
     if(m_options & ECO_HISTORY)
@@ -385,7 +386,7 @@ void LuaConsoleModel::setL(lua_State * L)
 {
     //TODO: add support for more L's being linked/using echos at once??
     this->L = L;
-    
+
     //clear and disarm, so the state that used us before is no longer able to
     m_luaptr.clearLuaPointer();
     m_luaptr.disarmLuaPointer();
