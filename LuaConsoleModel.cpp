@@ -170,6 +170,9 @@ void LuaConsoleModel::readHistory(int change)
     else
     {
         m_lastline = m_history[m_hindex];
+        if(m_lastline.size() > 77u)
+            m_lastline.resize(77u);
+
         moveCursor(kCursorEnd);
     }
 
