@@ -351,11 +351,6 @@ const ColorString& LuaConsoleModel::getWideColor(int index) const
     return m_widemsg[index].Color;
 }
 
-const std::string& LuaConsoleModel::getLastLine() const
-{
-    return m_lastline;
-}
-
 int LuaConsoleModel::getCurPos() const
 {
     return m_cur;
@@ -601,9 +596,9 @@ void LuaConsoleModel::updateBuffer() const
         a[x].Color = m_colors[ECC_PROMPT];
     }
 
-    for(std::size_t x = 0; x < getLastLine().size(); ++x)
+    for(std::size_t x = 0; x < m_lastline.size(); ++x)
     {
-        a[x].Char = getLastLine()[x];
+        a[x].Char = m_lastline[x];
     }
 }
 
