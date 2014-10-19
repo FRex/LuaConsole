@@ -20,9 +20,10 @@ static sf::Color toColor(unsigned color)
 
 LuaSFMLConsoleView::LuaSFMLConsoleView(bool defaultfont) :
 m_lastdirtyness(0u),
-m_font(nullptr),
+m_font(0x0),
 m_ownfont(false),
-m_defaultfont(defaultfont)
+m_defaultfont(defaultfont),
+m_modelvisible(false)
 {
     m_vertices.setPrimitiveType(sf::Quads);
 
@@ -43,6 +44,8 @@ LuaSFMLConsoleView::~LuaSFMLConsoleView()
 void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if(!m_font || !m_modelvisible) return;
+
+    (void)states;
 
     //save old view and set "normal" view for our drawing
     sf::View v = target.getView();

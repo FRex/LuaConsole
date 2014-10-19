@@ -36,7 +36,7 @@ private:
     bool m_ownfont;
     sf::VertexArray m_vertices; //vertices with font
     bool m_defaultfont;
-    bool m_modelvisible = false;
+    bool m_modelvisible;
 
 };
 

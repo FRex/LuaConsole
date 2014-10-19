@@ -21,10 +21,7 @@ template <typename T> class LuaPointerOwner
 {
 public:
 
-    LuaPointerOwner() : m_luaptr(nullptr) { }
-    //delete copy and assignment to forbid copying (leads to errors)
-    LuaPointerOwner(const LuaPointerOwner& other) = delete;
-    LuaPointerOwner& operator=(const LuaPointerOwner& other) = delete;
+    LuaPointerOwner() : m_luaptr(0x0) { }
 
     ~LuaPointerOwner()
     {
@@ -41,7 +38,7 @@ public:
 
     void disarmLuaPointer()
     {
-        m_luaptr = nullptr;
+        m_luaptr = 0x0;
     }
 
     //method to call when we want to 'unlink' the instance we are managing
@@ -49,11 +46,15 @@ public:
     void clearLuaPointer()
     {
         if(m_luaptr)
-            (*m_luaptr) = nullptr;
+            (*m_luaptr) = 0x0;
     }
 
 private:
-    T ** m_luaptr = nullptr;
+    //delete copy and assignment to forbid copying (leads to errors)
+    LuaPointerOwner(const LuaPointerOwner& other);
+    LuaPointerOwner& operator=(const LuaPointerOwner& other);
+
+    T ** m_luaptr;
 
 };
 

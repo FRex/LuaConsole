@@ -70,7 +70,7 @@ int demo_setTitle(lua_State * L)
 const luaL_Reg demoReg[] = {
     {"rainbowEcho", &demo_rainbowEcho},
     {"setTitle", &demo_setTitle},
-    {nullptr, nullptr}
+    {0x0, 0x0}
 };
 
 void openDemo(lua_State * L)
@@ -92,7 +92,7 @@ void openDemo(lua_State * L)
 int main()
 {
     //do that because we are gonna be using rand() in the demo functions
-    std::srand(std::time(nullptr));
+    std::srand(std::time(0x0));
     sf::RenderWindow app(sf::VideoMode(890u, 520u), "LuaConsole");
     app.setFramerateLimit(30u);
 

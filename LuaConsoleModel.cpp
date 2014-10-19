@@ -45,7 +45,7 @@ LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
     lua_gettable(L, LUA_REGISTRYINDEX);
 
     //if we fail we return null
-    LuaConsoleModel * ret = nullptr;
+    LuaConsoleModel * ret = 0x0;
 
     //if we got userdata and it has a metatable
     if(lua_type(L, -1) == LUA_TUSERDATA && lua_getmetatable(L, -1))
@@ -75,7 +75,7 @@ LuaConsoleModel::LuaConsoleModel(unsigned options) :
 m_dirtyness(1u), //because 0u is what view starts at
 m_lastupdate(0u),
 m_cur(1),
-L(nullptr),
+L(0x0),
 m_w(kInnerWidth),
 m_options(options),
 m_visible(options & ECO_START_VISIBLE),
@@ -130,8 +130,8 @@ m_emptyenterrepeat(true)
 
     for(int i = 0; i < ECT_COUNT; ++i)
     {
-        m_callbackdata[i] = nullptr;
-        m_callbackfuncs[i] = nullptr;
+        m_callbackdata[i] = 0x0;
+        m_callbackfuncs[i] = 0x0;
     }
 }
 
@@ -327,7 +327,7 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
 
     if(m_msg.size() > kMessagesKeptCount)
     {
-        const std::size_t msgs = pushWideMessages(*m_msg.begin(), nullptr, m_w);
+        const std::size_t msgs = pushWideMessages(*m_msg.begin(), 0x0, m_w);
         m_msg.erase(m_msg.begin());
         m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
@@ -377,7 +377,7 @@ static int ConsoleModel_gc(lua_State * L)
     //rationale: assume if our instance in registry and all references of it 
     //got destroyed we are not able to or supposed to use the same L anymore
     if(m)
-        m->setL(nullptr);
+        m->setL(0x0);
 
     return 0;
 }

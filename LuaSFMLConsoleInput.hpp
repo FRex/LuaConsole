@@ -17,7 +17,7 @@ class LuaConsoleModel;
 class LuaSFMLConsoleInput
 {
 public:
-    LuaSFMLConsoleInput(LuaConsoleModel * model = nullptr);
+    LuaSFMLConsoleInput(LuaConsoleModel * model = 0x0);
     void setModel(LuaConsoleModel * model);
     LuaConsoleModel * getModel() const;
     bool handleEvent(sf::Event event);

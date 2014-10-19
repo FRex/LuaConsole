@@ -32,7 +32,7 @@ static std::string cleanTableList(const std::string& str)
         if(c == '.' && gotwhite)
         {
             for(std::size_t j = 0u; j < (i - whitespacestart); ++j)
-                ret.pop_back();
+                ret.erase(--ret.end());
         }
         if(c != ' ') gotwhite = false;
         if(c != ' ' || !gotdot) ret += c;
