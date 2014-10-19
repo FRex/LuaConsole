@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <ctime>
 
+
+//array of (html named) colors to use in the rainbow
 const unsigned colors[] = {
     0xffffffFF, //white  
     0xff0000FF, //red
@@ -33,13 +35,19 @@ int demo_rainbowEcho(lua_State * L)
 {
     std::size_t len;
     const char * msg = luaL_checklstring(L, 1, &len);
+
+    //get the model from the registry
     blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+
+    //check, since it might be null if it was deleted before this lua state
     if(model)
     {
+        //create a color string and fill it with random colors
         blua::ColorString color(len, 0x0);
         for(std::size_t i = 0u; i < len; ++i)
             color[i] = colors[std::rand() % kColorsCount];
 
+        //echo it out using the function that takes message string and color string
         model->echoLine(msg, color);
     }
     return 0;
@@ -48,7 +56,11 @@ int demo_rainbowEcho(lua_State * L)
 int demo_setTitle(lua_State * L)
 {
     const char * title = luaL_checkstring(L, 1);
+
+    //get the model from the registry
     blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+
+    //check, since it might be null if it was deleted before this lua state
     if(model)
         model->setTitle(title);
 
@@ -79,15 +91,30 @@ void openDemo(lua_State * L)
 
 int main()
 {
+    //do that because we are gonna be using rand() in the demo functions
     std::srand(std::time(nullptr));
     sf::RenderWindow app(sf::VideoMode(890u, 520u), "LuaConsole");
     app.setFramerateLimit(30u);
+
+    //open our state, as usual, open demo table in it too
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
     openDemo(L);
+    
+    //create our model
     blua::LuaConsoleModel model;
+
+    //tell it which console it has to handle, if you forget you get clear errors
+    //on each attempt to write or complete code, telling you you forgot to set it
     model.setL(L);
+
+    //create the input which will filter and translate sf::Event s
+    //into calls to model api functions that move the cursor, type characters etc.
     blua::LuaSFMLConsoleInput input(&model);
+
+    //since view doesnt use any methods of LuaConsoleModel it doesnt need any
+    //pointer to it, this class handles the font and drawing itself,
+    //but not the layouting, which is handled by model
     blua::LuaSFMLConsoleView view;
 
     while(app.isOpen())
@@ -95,11 +122,21 @@ int main()
         sf::Event eve;
         while(app.pollEvent(eve))
         {
-            if(eve.type == sf::Event::Closed) app.close();
+            if(eve.type == sf::Event::Closed)
+                app.close();
+
+            //send even to console model via the input helper class
+            //this returns a bool saying whether or not the event was
+            //consumed by console but we dont care about it here
             input.handleEvent(eve);
         }
         app.clear();
+
+        //pull all changes of characters, colors, etc. from the model
+        //and get ready to render them (or not, if console is hidden)
         view.geoRebuild(&model);
+
+        //draw the view with usual syntax, since it inherits from sf::Drawable
         app.draw(view);
         app.display();
     }
