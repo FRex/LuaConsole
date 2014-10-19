@@ -260,7 +260,7 @@ unsigned LuaConsoleModel::getDirtyness() const
 //split str on newlines and to fit 'width' length and push to given vector (if not null)
 //returns how many messages str was split into
 
-static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredLine>* widemsgs, unsigned width)
+static std::size_t pushWideMessages(const priv::ColoredLine& str, std::vector<priv::ColoredLine>* widemsgs, unsigned width)
 {
     std::size_t ret = 0u;
     std::size_t charcount = 0u;
@@ -275,7 +275,7 @@ static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredL
             if(str.Text[i] == '\n') --charcount;
             if(widemsgs)
             {
-                ColoredLine line;
+                priv::ColoredLine line;
                 line.Text = str.Text.substr(start, charcount);
                 line.Color = str.Color.substr(start, charcount);
                 widemsgs->push_back(line);
@@ -291,7 +291,7 @@ static std::size_t pushWideMessages(const ColoredLine& str, std::vector<ColoredL
     {
         if(widemsgs)
         {
-            ColoredLine line;
+            priv::ColoredLine line;
             line.Text = str.Text.substr(start, charcount);
             line.Color = str.Color.substr(start, charcount);
             widemsgs->push_back(line);
@@ -316,7 +316,7 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
 {
     if(str.empty()) return echoLine(" ", colors); //workaround for a bug??
 
-    ColoredLine line;
+    priv::ColoredLine line;
     line.Text = str;
     line.Color = colors;
     line.resizeColorToFitText(m_colors[ECC_ECHO]);
@@ -439,15 +439,15 @@ void LuaConsoleModel::tryComplete()
     std::vector<std::string> possible; //possible matches
     std::string last;
 
-    prepareHints(L, m_lastline, last);
-    const bool normalhints = collectHints(L, possible, last, false);
+    priv::prepareHints(L, m_lastline, last);
+    const bool normalhints = priv::collectHints(L, possible, last, false);
     const bool hasmetaindex = luaL_getmetafield(L, -1, "__index");
-    const bool metahints = hasmetaindex && collectHints(L, possible, last, false);
+    const bool metahints = hasmetaindex && priv::collectHints(L, possible, last, false);
     if(!(normalhints || metahints))
     {
         //if all else fails, assume we want _any_ completion and use global table
         bla_lua_pushglobaltable(L);
-        collectHints(L, possible, last, false);
+        priv::collectHints(L, possible, last, false);
     }
 
     lua_settop(L, 0); //pop all trash we put on the stack
@@ -461,7 +461,7 @@ void LuaConsoleModel::tryComplete()
         }
         echoColored(msg, m_colors[ECC_HINT]);
 
-        const std::string commonprefix = commonPrefix(possible);
+        const std::string commonprefix = priv::commonPrefix(possible);
         m_lastline += commonprefix.substr(last.size());
         ++m_dirtyness;
         moveCursor(kCursorEnd);

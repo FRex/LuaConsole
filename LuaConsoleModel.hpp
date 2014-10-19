@@ -21,6 +21,8 @@ class LuaConsoleModel;
 typedef void (*CallbackFunc)(LuaConsoleModel*, void*);
 typedef std::basic_string<unsigned> ColorString;
 
+namespace priv {
+
 class ColoredLine
 {
 public:
@@ -33,6 +35,8 @@ public:
     }
 
 };
+
+} //priv
 
 //constants to move by to get to end or start of prompt line
 const int kCursorHome = -100000;
@@ -138,10 +142,10 @@ private:
     lua_State * L; //lua state we are talking with
     std::vector<std::string> m_history; //the history buffer
     int m_hindex; //index in history
-    std::vector<ColoredLine> m_msg; //actual messages that got echoed
+    std::vector<priv::ColoredLine> m_msg; //actual messages that got echoed
     int m_w; //width of console, not counting the borders
-    std::vector<ColoredLine> m_widemsg; //messages adjusted/split to fit width of console
-    const ColoredLine m_empty; //empty line constant
+    std::vector<priv::ColoredLine> m_widemsg; //messages adjusted/split to fit width of console
+    const priv::ColoredLine m_empty; //empty line constant
     const unsigned m_options; //options passed at construction
     bool m_visible; //are we visible?
     unsigned m_colors[ECC_COUNT]; //colors of various kinds of text

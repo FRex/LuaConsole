@@ -4,7 +4,7 @@
 #include <algorithm>
 
 namespace blua {
-
+namespace priv {
 //TODO: these still need some work to be more accurate
 
 //this fetches the compacted string of table names so
@@ -138,4 +138,5 @@ std::string commonPrefix(const std::vector<std::string>& possible)
     return ret;
 }
 
+} //priv
 } //blua
