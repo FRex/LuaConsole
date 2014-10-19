@@ -475,17 +475,6 @@ void LuaConsoleModel::tryComplete()
     }
 }
 
-const std::vector<std::string>& LuaConsoleModel::getHistory() const
-{
-    return m_history;
-}
-
-void LuaConsoleModel::setHistory(const std::vector<std::string>& history)
-{
-    m_history = history;
-    m_hindex = history.size();
-}
-
 void LuaConsoleModel::setCallback(ECALLBACK_TYPE type, CallbackFunc func, void* data)
 {
     if(type == ECT_COUNT)
@@ -631,5 +620,28 @@ void LuaConsoleModel::setTitle(const std::string& title)
     m_title = title;
 }
 
+void LuaConsoleModel::setHistorySize(std::size_t newsize)
+{
+    m_history.resize(newsize);
+}
+
+void LuaConsoleModel::setHistoryItem(std::size_t index, const std::string& item)
+{
+    if(index < m_history.size())
+        m_history[index] = item;
+}
+
+std::size_t LuaConsoleModel::getHistorySize() const
+{
+    return m_history.size();
+}
+
+const std::string& LuaConsoleModel::getHistoryItem(std::size_t index) const
+{
+    if(index < m_history.size())
+        return m_history[index];
+
+    return m_empty.Text;
+}
 
 } //blua

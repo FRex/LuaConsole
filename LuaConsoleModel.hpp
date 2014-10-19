@@ -59,7 +59,7 @@ enum ECONSOLE_COLOR
     ECC_TITLE = 5, //color of the title, default white
     ECC_FRAME = 6, //color of the title, default darkgrey
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
-    
+
     ECC_COUNT //count, keep last
 };
 
@@ -91,8 +91,6 @@ public:
     void echoLine(const std::string& str, const ColorString& colors);
     const std::string& getTitle() const;
     void setTitle(const std::string& title);
-    const std::vector<std::string>& getHistory() const;
-    void setHistory(const std::vector<std::string>& history);
     void setCallback(ECALLBACK_TYPE type, CallbackFunc func, void * data);
     void setVisible(bool visible);
     bool isVisible() const;
@@ -101,6 +99,10 @@ public:
     unsigned getColor(ECONSOLE_COLOR which) const;
     void setEnterRepeatLast(bool eer);
     bool getEnterRepeatLast() const;
+    void setHistorySize(std::size_t newsize);
+    void setHistoryItem(std::size_t index, const std::string& item);
+    std::size_t getHistorySize() const;
+    const std::string& getHistoryItem(std::size_t index) const;
 
 
     //api for controller:
