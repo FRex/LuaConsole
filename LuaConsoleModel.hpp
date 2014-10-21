@@ -101,6 +101,7 @@ enum ECALLBACK_TYPE
 };
 
 //for use instead of bool in moveCursorOneWord
+
 enum EMOVE_DIRECTION
 {
     EMD_RIGHT,
@@ -195,6 +196,16 @@ public:
     //get content of certain item of history buffer
     const std::string& getHistoryItem(std::size_t index) const;
 
+    //load history from a file, this uses ifstream and loads last history size
+    //lines from the file if you want own fs handling, different behaviour, etc.
+    //then use get/set history item/size
+    bool loadHistoryFromFile(const std::string& filename);
+
+    //save history to file, this uses ofstream and either appends all lines to
+    //specified file or overwrites the file and fills it with the history lines
+    //bool append controls whether to append or overwrite
+    void saveHistoryToFile(const std::string& filename, bool append = true);
+
 
     //API FOR CONTROLLER:///////////////////////////////////////////////////////
 
@@ -202,7 +213,7 @@ public:
     //automatically, pass kCursorEnd or kCursorHome to go to lastline or 0 respectively
     //use this for Home/End key press and for Left/Right arrow keys
     void moveCursor(int move);
-    
+
     //move cursor by one word left or right (see EMOVE_DIRECTION) like
     //bash (at least KDE and xfce terminals) does, that is:
     //when moving left, skip a word and land on its' first char

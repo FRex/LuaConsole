@@ -146,16 +146,15 @@ m_emptyenterrepeat(true)
     m_colors[ECC_FRAME] = 0xa9a9a9ff;
     m_colors[ECC_BACKGROUND] = 0x007f7f7f;
 
+    //always give sane history size default, even if not asked for reading it
+    setHistorySize(kHistoryKeptCount);
+
     //read history from file if desired
     if(m_options & ECO_HISTORY)
     {
-        std::ifstream file(kHistoryFilename);
-        std::string str;
-        while(std::getline(file, str) && m_history.size() < kHistoryKeptCount)
-        {
-            m_history.push_back(str);
-        }
+        loadHistoryFromFile(kHistoryFilename);
     }
+
     m_hindex = m_history.size();
 
     for(int i = 0; i < ECT_COUNT; ++i)
@@ -167,15 +166,9 @@ m_emptyenterrepeat(true)
 
 LuaConsoleModel::~LuaConsoleModel()
 {
-    //save history to file if desired
+    //save history to file if desired, append
     if(m_options & ECO_HISTORY)
-    {
-        std::ofstream file(kHistoryFilename);
-        for(std::size_t i = 0u; i < m_history.size(); ++i)
-        {
-            file << m_history[i] << std::endl;
-        }
-    }
+        saveHistoryToFile(kHistoryFilename, true);
 }
 
 void LuaConsoleModel::moveCursor(int move)
@@ -238,10 +231,14 @@ void LuaConsoleModel::parseLastLine()
         m_lastline = m_history.back();
 
     echoColored(m_lastline, m_colors[ECC_CODE]);
+
+    //always push and then remove first, other way around wouldn't be safe
+    //just make our history always be x lines and do it that way instead of old
+    //way, no need for 'maxhistory' variable or anything
     m_history.push_back(m_lastline);
+    m_history.erase(m_history.begin());
 
-    if(m_history.size() > kHistoryKeptCount) m_history.erase(m_history.begin());
-
+    //to 'cancel out' previous history browsing
     m_hindex = m_history.size();
 
     //call before running, in case crash, exit etc.
@@ -693,6 +690,41 @@ const std::string& LuaConsoleModel::getHistoryItem(std::size_t index) const
         return m_history[index];
 
     return m_empty.Text;
+}
+
+bool LuaConsoleModel::loadHistoryFromFile(const std::string& filename)
+{
+    std::ifstream file(filename.c_str());
+    if(!file.is_open())
+        return false;
+
+    if(getHistorySize() == 0u)
+        return false;
+
+    std::vector<std::string> buf(getHistorySize());
+    std::string line;
+    std::size_t iter = 0u;
+
+    while(std::getline(file, line))
+    {
+        buf[iter % getHistorySize()] = line;
+        ++iter;
+    }
+
+    if(iter == 0u)
+        return false;
+
+    for(std::size_t i = 0; i < getHistorySize(); ++i)
+        m_history[i] = buf[(iter + i) % getHistorySize()];
+
+    return true;
+}
+
+void LuaConsoleModel::saveHistoryToFile(const std::string& filename, bool append)
+{
+    std::ofstream file(filename.c_str(), append?std::ios::app:std::ios::trunc);
+    for(std::size_t i = 0u; i < getHistorySize(); ++i)
+        file << getHistoryItem(i) << std::endl;
 }
 
 } //blua
