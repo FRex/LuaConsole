@@ -31,7 +31,14 @@ bool LuaSFMLConsoleInput::handleEvent(sf::Event event)
     switch(event.type)
     {
         case sf::Event::KeyPressed:
-            handleKeyEvent(event);
+            if(event.key.control)
+            {
+                handleCtrlKeyEvent(event);
+            }
+            else
+            {
+                handleKeyEvent(event);
+            }
             return true;
         case sf::Event::TextEntered:
             m_model->addChar(static_cast<char>(event.text.unicode));
@@ -80,6 +87,24 @@ void LuaSFMLConsoleInput::handleKeyEvent(sf::Event event)
             break;
         default:
             //TODO:optionally do not consume all keys?
+            break;
+    }
+}
+
+void LuaSFMLConsoleInput::handleCtrlKeyEvent(sf::Event event)
+{
+    assert(event.type == sf::Event::KeyPressed);
+
+    switch(event.key.code)
+    {
+        case sf::Keyboard::Left:
+            m_model->moveCursorOneWord(blua::EMD_LEFT);
+            break;
+        case sf::Keyboard::Right:
+            m_model->moveCursorOneWord(blua::EMD_RIGHT);
+            break;
+        default:
+            //TODO:optionally do not consume all keys? (as above)
             break;
     }
 }

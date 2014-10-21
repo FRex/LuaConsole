@@ -100,6 +100,12 @@ enum ECALLBACK_TYPE
     ECT_COUNT //count, keep last
 };
 
+//for use instead of bool in moveCursorOneWord
+enum EMOVE_DIRECTION
+{
+    EMD_RIGHT,
+    EMD_LEFT
+};
 
 //a single UTF-32 character* in console, with its' color
 //*so far it can only be an ascii char but this might change
@@ -196,6 +202,14 @@ public:
     //automatically, pass kCursorEnd or kCursorHome to go to lastline or 0 respectively
     //use this for Home/End key press and for Left/Right arrow keys
     void moveCursor(int move);
+    
+    //move cursor by one word left or right (see EMOVE_DIRECTION) like
+    //bash (at least KDE and xfce terminals) does, that is:
+    //when moving left, find first nonskipable charcter to left and go to it
+    //when moving right, find first skippable character to right and go to it
+    //if these searches fail then cursor jumps to end or start of prompt line
+    //skipable characters are in kSkipChars in the .cpp file
+    void moveCursorOneWord(EMOVE_DIRECTION move);
 
     //change the index of history and set last line to currently selected item
     //if index is equal to history size then we set an empty line

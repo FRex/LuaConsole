@@ -26,6 +26,7 @@ public:
     
 private:
     void handleKeyEvent(sf::Event eve);
+    void handleCtrlKeyEvent(sf::Event eve);
         
     LuaConsoleModel * m_model;
     sf::Keyboard::Key m_togglekey;

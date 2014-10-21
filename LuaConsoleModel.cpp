@@ -30,6 +30,36 @@ const int kMessagesKeptCount = 100;
 const char * const kHistoryFilename = "luaconsolehistory.txt";
 const char * const kInitFilename = "luaconsoleinit.lua";
 
+//skipable chars, they are considered non-word chars when jumping cursor
+//forward or backwards, might make it a console model setting later
+const char * const kSkipChars = " ,.;()[]{}:'\"";
+
+//check if c is in skipchars
+
+inline static bool isSkipChar(char c, const char * skipchars)
+{
+    return 0x0 != std::strchr(skipchars, c);
+}
+
+static int findFirstSkipCharAfterNonskip(const std::string& line, const char *skips, int iter, int start)
+{
+    bool gotnonskip = false;
+    for(int i = start + iter; 0 <= i && i<static_cast<int>(line.size()); i += iter)
+    {
+        if(gotnonskip)
+        {
+            if(isSkipChar(line[i], skips))
+                return i;
+        }
+        else
+        {
+            if(!isSkipChar(line[i], skips))
+                gotnonskip = true;
+        }
+    }//for
+    return -1;
+}
+
 //this is the best way to do it when we assume 1 console per lua state
 static int TheLightKey;
 
@@ -154,6 +184,29 @@ void LuaConsoleModel::moveCursor(int move)
     m_cur = std::max<int>(m_cur, 1);
     m_cur = std::min<int>(m_lastline.size() + 1, m_cur);
     ++m_dirtyness;
+}
+
+void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
+{
+    const int iter = (move == EMD_LEFT)?-1:1;
+    int targ = findFirstSkipCharAfterNonskip(m_lastline, kSkipChars, iter, m_cur - 1); //see below about -1
+
+    //if target is -1 we failed, so just move to home or end, as needed
+    if(targ == -1)
+    {
+        moveCursor(move == EMD_LEFT?kCursorHome:kCursorEnd);
+    }
+    else
+    {
+        //add 1 if we moved left, we wanna be on first char of word we just skipped
+        if(move == EMD_LEFT)
+            ++targ;
+
+        //unfortunate 'hax' of m_Cur being in 'screen space', not 'line space'
+        //so 0th char in line is 1 in m_cur, so we add 1
+        m_cur = targ + 1;
+        ++m_dirtyness;
+    }
 }
 
 void LuaConsoleModel::readHistory(int change)
