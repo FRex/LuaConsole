@@ -31,6 +31,8 @@ const unsigned colors[] = {
 
 const unsigned kColorsCount = sizeof (colors) / sizeof (colors[0]);
 
+//echo using a different color for each character
+
 int demo_rainbowEcho(lua_State * L)
 {
     std::size_t len;
@@ -53,6 +55,8 @@ int demo_rainbowEcho(lua_State * L)
     return 0;
 }
 
+//set console title
+
 int demo_setTitle(lua_State * L)
 {
     const char * title = luaL_checkstring(L, 1);
@@ -67,9 +71,43 @@ int demo_setTitle(lua_State * L)
     return 0;
 }
 
+//echo in color
+
+int demo_echoColored(lua_State * L)
+{
+    const char * msg = luaL_checkstring(L, 1);
+    unsigned color = static_cast<unsigned>(luaL_checknumber(L, 2)); //no check unsigned in 5.1/Jit
+
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+    if(model)
+        model->echoColored(msg, color);
+
+    return 0;
+}
+
+const char * const kColorNames[] = {
+    "error", "hint", "code", "echo", "prompt", "title", "frame", "background", 0x0
+};
+
+//set one of console colors
+
+int demo_setConsoleColor(lua_State * L)
+{
+    const int opt = luaL_checkoption(L, 1, 0x0, kColorNames);
+    unsigned color = static_cast<unsigned>(luaL_checknumber(L, 2)); //no check unsigned in 5.1/Jit
+
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+    if(model)
+        model->setColor(static_cast<blua::ECONSOLE_COLOR>(opt), color);
+
+    return 0;
+}
+
 const luaL_Reg demoReg[] = {
     {"rainbowEcho", &demo_rainbowEcho},
     {"setTitle", &demo_setTitle},
+    {"echoColored", &demo_echoColored},
+    {"setConsoleColor", &demo_setConsoleColor},
     {0x0, 0x0}
 };
 
@@ -100,7 +138,7 @@ int main()
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
     openDemo(L);
-    
+
     //create our model
     blua::LuaConsoleModel model;
 
