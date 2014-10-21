@@ -153,9 +153,7 @@ m_skipchars(kDefaultSkipChars)
 
     //read history from file if desired
     if(m_options & ECO_HISTORY)
-    {
         loadHistoryFromFile(kHistoryFilename);
-    }
 
     m_hindex = m_history.size();
 

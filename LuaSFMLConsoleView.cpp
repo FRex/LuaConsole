@@ -38,12 +38,14 @@ m_modelvisible(false)
 
 LuaSFMLConsoleView::~LuaSFMLConsoleView()
 {
-    if(m_ownfont) delete m_font;
+    if(m_ownfont)
+        delete m_font;
 }
 
 void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates /* states --unused */) const
 {
-    if(!m_font || !m_modelvisible) return;
+    if(!m_font || !m_modelvisible)
+        return;
 
     //save old view and set "normal" view for our drawing
     sf::View v = target.getView();
@@ -65,7 +67,8 @@ void LuaSFMLConsoleView::setFont(const sf::Font * font)
 {
     //do something to dirtyness to force rebuilding letters??
 
-    if(m_ownfont) delete m_font;
+    if(m_ownfont)
+        delete m_font;
 
     m_font = font;
     m_ownfont = false; //never own a set font
@@ -110,14 +113,27 @@ void LuaSFMLConsoleView::setFont(const sf::Font * font)
 
 void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 {
-    if(!model) return;
+    if(!model)
+        return;
+
+    //this can change between calls but doesnt warrant expensive rebuild
+    //so doesnt bump dirtyness, so we take it right here
     m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
-    if(m_lastdirtyness == model->getDirtyness()) return; //no need
-    if(!m_font) return; //take dirtyness after so setting font late works
+
+    //obviously no need to rebuild when model isn't any dirtier
+    if(m_lastdirtyness == model->getDirtyness())
+        return;
+
+    //take dirtyness after font so setting font late works
+    if(!m_font)
+        return;
 
     m_lastdirtyness = model->getDirtyness();
     m_modelvisible = model->isVisible();
-    if(!m_modelvisible) return;
+
+    //dont bother build geo that isnt going to be drawn
+    if(!m_modelvisible)
+        return;
 
     const ScreenCell * screen = model->getScreenBuffer();
 
@@ -140,6 +156,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         x += m_font->getKerning(prevChar, curChar, kFontSize);
         prevChar = curChar;
 
+        //check if cursor is here and if yes, add fullblock gylph
         if(model->getCurPos() + 80u * 22u == i)
         {
             const sf::Uint32 kFullBlockChar = 0x2588u; //unicode fullblock
@@ -184,9 +201,14 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         {
             y += vspace;
             x = 0;
+
+            //we dont use \ns so we fake them, this is in theory for kerning but
+            //probably doesnt matter since we (supposedly) use a monospaced
+            //font anyway
+            prevChar = '\n';
         }
-    }
-}
+    } //for(std::size_t i = 0u; i < 24u * 80u; ++i)
+}//geoRebuild
 
 } //blua
 
