@@ -205,9 +205,9 @@ public:
     
     //move cursor by one word left or right (see EMOVE_DIRECTION) like
     //bash (at least KDE and xfce terminals) does, that is:
-    //when moving left, find first nonskipable charcter to left and go to it
-    //when moving right, find first skippable character to right and go to it
-    //if these searches fail then cursor jumps to end or start of prompt line
+    //when moving left, skip a word and land on its' first char
+    //when moving right, skip a word and land just after its' last char
+    //if there is no word to skip then cursor jumps to end(right) or start(left) of prompt line
     //skipable characters are in kSkipChars in the .cpp file
     void moveCursorOneWord(EMOVE_DIRECTION move);
 

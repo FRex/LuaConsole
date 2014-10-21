@@ -1,6 +1,6 @@
 This file is here just for trivia.
 
-http://cloc.sourceforge.net v 1.62  T=0.04 s (295.7 files/s, 46274.6 lines/s)
+http://cloc.sourceforge.net v 1.62  T=0.04 s (280.6 files/s, 43910.4 lines/s)
 -------------------------------------------------------------------------------------
 File                                   blank        comment           code
 -------------------------------------------------------------------------------------
