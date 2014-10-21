@@ -23,8 +23,10 @@ const unsigned kBLFrameChar = 0x255au;
 const unsigned kBRFrameChar = 0x255du;
 const unsigned kURFrameChar = 0x2557u;
 
-//how many history items and messages(not wide) to keep
-const int kHistoryKeptCount = 100;
+//how many history items to keep by default 
+const int kDefaultHistorySize = 100;
+
+//how many messages(not wide) to keep, this is for internal workings of console mostly
 const int kMessagesKeptCount = 100;
 
 const char * const kHistoryFilename = "luaconsolehistory.txt";
@@ -147,7 +149,7 @@ m_emptyenterrepeat(true)
     m_colors[ECC_BACKGROUND] = 0x007f7f7f;
 
     //always give sane history size default, even if not asked for reading it
-    setHistorySize(kHistoryKeptCount);
+    setHistorySize(kDefaultHistorySize);
 
     //read history from file if desired
     if(m_options & ECO_HISTORY)
