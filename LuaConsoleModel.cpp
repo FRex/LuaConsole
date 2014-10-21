@@ -32,9 +32,8 @@ const int kMessagesKeptCount = 100;
 const char * const kHistoryFilename = "luaconsolehistory.txt";
 const char * const kInitFilename = "luaconsoleinit.lua";
 
-//skipable chars, they are considered non-word chars when jumping cursor
-//forward or backwards, might make it a console model setting later
-const char * const kSkipChars = " ,.;()[]{}:'\"";
+//default skipable chars, very sane for lua and similar to bash
+const char * const kDefaultSkipChars = " ,.;()[]{}:'\"";
 
 //check if c is in skipchars
 
@@ -111,7 +110,8 @@ L(0x0),
 m_w(kInnerWidth),
 m_options(options),
 m_visible(options & ECO_START_VISIBLE),
-m_emptyenterrepeat(true)
+m_emptyenterrepeat(true),
+m_skipchars(kDefaultSkipChars)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -184,7 +184,9 @@ void LuaConsoleModel::moveCursor(int move)
 void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
 {
     const int iter = (move == EMD_LEFT)?-1:1;
-    int targ = findFirstSkipCharAfterNonskip(m_lastline, kSkipChars, iter, m_cur - 1); //see below about -1
+
+    //see below about why we do 'm_cur - 1' not just 'm_cur'
+    int targ = findFirstSkipCharAfterNonskip(m_lastline, m_skipchars.c_str(), iter, m_cur - 1);
 
     //if target is -1 we failed, so just move to home or end, as needed
     if(targ == -1)
@@ -727,6 +729,16 @@ void LuaConsoleModel::saveHistoryToFile(const std::string& filename, bool append
     std::ofstream file(filename.c_str(), append?std::ios::app:std::ios::trunc);
     for(std::size_t i = 0u; i < getHistorySize(); ++i)
         file << getHistoryItem(i) << std::endl;
+}
+
+void LuaConsoleModel::setSkipCharacters(const std::string& chars)
+{
+    m_skipchars = chars;
+}
+
+const std::string& LuaConsoleModel::getSkipCharacters() const
+{
+    return m_skipchars;
 }
 
 } //blua

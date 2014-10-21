@@ -1,11 +1,11 @@
 This file is here just for trivia.
 
-http://cloc.sourceforge.net v 1.62  T=0.03 s (348.2 files/s, 55802.2 lines/s)
+http://cloc.sourceforge.net v 1.62  T=0.04 s (305.0 files/s, 49459.9 lines/s)
 -------------------------------------------------------------------------------------
 File                                   blank        comment           code
 -------------------------------------------------------------------------------------
-LuaConsoleModel.cpp                      131             50            551
-LuaConsoleModel.hpp                       83             87            126
+LuaConsoleModel.cpp                      134             50            560
+LuaConsoleModel.hpp                       85             93            129
 LuaSFMLConsoleView.cpp                    35             37            120
 LuaCompletion.cpp                         18             11            113
 LuaSFMLConsoleInput.cpp                   15              2            105
@@ -17,5 +17,5 @@ LuaSFMLConsoleInput.hpp                   11              6             22
 LuaCompletion.hpp                         10             12             13
 luaconsoleinit.lua                         2              0             11
 -------------------------------------------------------------------------------------
-SUM:                                     386            288           1249
+SUM:                                     391            294           1261
 -------------------------------------------------------------------------------------

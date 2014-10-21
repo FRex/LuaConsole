@@ -206,6 +206,16 @@ public:
     //bool append controls whether to append or overwrite
     void saveHistoryToFile(const std::string& filename, bool append = true);
 
+    //set characters that jumping over words won't consider part of a word
+    //see moveCursorOneWord for explanation about what exactly happens then
+    //PS: this is set to a sane default for lua
+    void setSkipCharacters(const std::string& chars);
+
+    //get characters that are not considered parts of words when jumping words
+    //see moveCursorOneWord for explanation about what exactly happens then
+    //PS: this is set to a sane default for lua
+    const std::string& getSkipCharacters() const;
+
 
     //API FOR CONTROLLER:///////////////////////////////////////////////////////
 
@@ -287,6 +297,7 @@ private:
     mutable ScreenCell m_screen[80 * 24]; //screen buff = chars && colors --make this adjustable?
     std::string m_title; //title of the console
     LuaPointerOwner<LuaConsoleModel> m_luaptr; //the lua pointer of ours that handles two way deletions
+    std::string m_skipchars; //characters we don't consider part of a word when jumping over words
 
 };
 
