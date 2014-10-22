@@ -1,6 +1,6 @@
 This file is here just for trivia.
 
-http://cloc.sourceforge.net v 1.62  T=0.03 s (360.2 files/s, 60153.2 lines/s)
+http://cloc.sourceforge.net v 1.62  T=0.04 s (293.2 files/s, 48972.4 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
