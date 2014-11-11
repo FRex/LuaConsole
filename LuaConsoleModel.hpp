@@ -83,7 +83,7 @@ enum ECONSOLE_COLOR
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
 
 
-    ECC_COUNT //count, keep last
+    ECONSOLE_COLOR_COUNT //count, keep last
 };
 
 
@@ -97,7 +97,7 @@ enum ECALLBACK_TYPE
     ECT_NEWHISTORY = 0,
 
 
-    ECT_COUNT //count, keep last
+    ECALLBACK_TYPE_COUNT //count, keep last
 };
 
 //for use instead of bool in moveCursorOneWord
@@ -276,8 +276,8 @@ private:
     void updateBuffer() const;
 
 
-    CallbackFunc m_callbackfuncs[ECT_COUNT]; //callbakcs called on certain events
-    void * m_callbackdata[ECT_COUNT]; //data for callbacks
+    CallbackFunc m_callbackfuncs[ECALLBACK_TYPE_COUNT]; //callbakcs called on certain events
+    void * m_callbackdata[ECALLBACK_TYPE_COUNT]; //data for callbacks
     unsigned m_dirtyness; //our current dirtyness
     mutable unsigned m_lastupdate; //when was last update of buffer
     std::string m_lastline; //the prompt line, colorless
@@ -292,7 +292,7 @@ private:
     const priv::ColoredLine m_empty; //empty line constant
     const unsigned m_options; //options passed at construction
     bool m_visible; //are we visible?
-    unsigned m_colors[ECC_COUNT]; //colors of various kinds of text
+    unsigned m_colors[ECONSOLE_COLOR_COUNT]; //colors of various kinds of text
     bool m_emptyenterrepeat; //should pressing enter with empty prompt repeat last line?
     mutable ScreenCell m_screen[80 * 24]; //screen buff = chars && colors --make this adjustable?
     std::string m_title; //title of the console

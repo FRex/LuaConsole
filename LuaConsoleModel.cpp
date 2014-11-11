@@ -157,7 +157,7 @@ m_skipchars(kDefaultSkipChars)
 
     m_hindex = m_history.size();
 
-    for(int i = 0; i < ECT_COUNT; ++i)
+    for(int i = 0; i < ECALLBACK_TYPE_COUNT; ++i)
     {
         m_callbackdata[i] = 0x0;
         m_callbackfuncs[i] = 0x0;
@@ -527,7 +527,7 @@ void LuaConsoleModel::tryComplete()
 
 void LuaConsoleModel::setCallback(ECALLBACK_TYPE type, CallbackFunc func, void* data)
 {
-    if(type == ECT_COUNT)
+    if(type == ECALLBACK_TYPE_COUNT)
         return;
 
     m_callbackfuncs[type] = func;
@@ -555,13 +555,13 @@ void LuaConsoleModel::toggleVisible()
 
 void LuaConsoleModel::setColor(ECONSOLE_COLOR which, unsigned color)
 {
-    if(which != ECC_COUNT)
+    if(which != ECONSOLE_COLOR_COUNT)
         m_colors[which] = color;
 }
 
 unsigned LuaConsoleModel::getColor(ECONSOLE_COLOR which) const
 {
-    if(which == ECC_COUNT)
+    if(which == ECONSOLE_COLOR_COUNT)
         return 0xffffffff;
 
     return m_colors[which];
