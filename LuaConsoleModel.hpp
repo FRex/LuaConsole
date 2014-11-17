@@ -229,7 +229,6 @@ public:
     //when moving left, skip a word and land on its' first char
     //when moving right, skip a word and land just after its' last char
     //if there is no word to skip then cursor jumps to end(right) or start(left) of prompt line
-    //skipable characters are in kSkipChars in the .cpp file
     void moveCursorOneWord(EMOVE_DIRECTION move);
 
     //change the index of history and set last line to currently selected item
