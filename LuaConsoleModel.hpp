@@ -79,7 +79,7 @@ enum ECONSOLE_COLOR
     ECC_ECHO = 3, //color of echo'd text, default white
     ECC_PROMPT = 4, //color of the prompt line text, default white
     ECC_TITLE = 5, //color of the title, default white
-    ECC_FRAME = 6, //color of the title, default darkgrey
+    ECC_FRAME = 6, //color of the frame, default darkgrey
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
 
 
