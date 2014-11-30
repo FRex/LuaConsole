@@ -102,6 +102,16 @@ LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
     return ret;
 }
 
+
+LuaConsoleModel* LuaConsoleModel::checkFromRegistry(lua_State* L)
+{
+    LuaConsoleModel * ret = getFromRegistry(L);
+    if(!ret)
+        luaL_error(L, "LuaConsole not attached to this state");
+
+    return ret;
+}
+
 LuaConsoleModel::LuaConsoleModel(unsigned options) :
 m_dirtyness(1u), //because 0u is what view starts at
 m_lastupdate(0u),

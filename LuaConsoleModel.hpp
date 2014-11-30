@@ -127,6 +127,9 @@ public:
     //get the console attached to this state, might return null, relatively typesafe
     static LuaConsoleModel * getFromRegistry(lua_State * L);
 
+    //as above, but lua errors instead of returning null
+    static LuaConsoleModel * checkFromRegistry(lua_State * L);
+
     //ctor, does NOT allocate lua state, takes a bitflag of ECONSOLE_OPTION values
     LuaConsoleModel(unsigned options = ECO_DEFAULT);
 
