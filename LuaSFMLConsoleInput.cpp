@@ -23,7 +23,10 @@ bool LuaSFMLConsoleInput::handleEvent(sf::Event event)
         return false;
 
     if(m_togglekey != sf::Keyboard::Unknown && event.type == sf::Event::KeyPressed && event.key.code == m_togglekey)
+    {
         m_model->toggleVisible();
+        return true;
+    }
 
     if(!m_model->isVisible())
         return false;
