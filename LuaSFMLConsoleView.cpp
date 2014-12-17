@@ -83,6 +83,11 @@ void LuaSFMLConsoleView::setFont(const sf::Font * font)
     }
 }
 
+const sf::Font * LuaSFMLConsoleView::getFont() const
+{
+    return m_font;
+}
+
 //code below was taken from SFML Text.cpp and MODIFIED,
 //it is NOT the original software, if looking for original software see:
 //https://github.com/LaurentGomila/SFML/

@@ -22,6 +22,7 @@ public:
     LuaSFMLConsoleView(bool defaultfont = true);
     ~LuaSFMLConsoleView();
     void setFont(const sf::Font * font);
+    const sf::Font * getFont() const;
     void geoRebuild(const LuaConsoleModel * model); //keep last
 
 private:
