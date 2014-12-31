@@ -1,5 +1,5 @@
-#include "LuaSFMLConsoleInput.hpp"
-#include "LuaConsoleModel.hpp"
+#include <LuaConsole/LuaSFMLConsoleInput.hpp>
+#include <LuaConsole/LuaConsoleModel.hpp>
 
 namespace blua {
 

@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
-#include "LuaHeader.hpp"
-#include "LuaConsoleModel.hpp"
-#include "LuaSFMLConsoleView.hpp"
-#include "LuaSFMLConsoleInput.hpp"
+#include <LuaConsole/LuaHeader.hpp>
+#include <LuaConsole/LuaConsoleModel.hpp>
+#include <LuaConsole/LuaSFMLConsoleView.hpp>
+#include <LuaConsole/LuaSFMLConsoleInput.hpp>
 #include <cstdlib>
 #include <ctime>
 

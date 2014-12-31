@@ -1,5 +1,5 @@
-#include "LuaSFMLConsoleView.hpp"
-#include "LuaConsoleModel.hpp"
+#include <LuaConsole/LuaSFMLConsoleView.hpp>
+#include <LuaConsole/LuaConsoleModel.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
 namespace blua {

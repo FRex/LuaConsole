@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "LuaPointerOwner.hpp"
+#include <LuaConsole/LuaPointerOwner.hpp>
 
 struct lua_State;
 

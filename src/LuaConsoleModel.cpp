@@ -1,6 +1,6 @@
-#include "LuaConsoleModel.hpp"
-#include "LuaHeader.hpp"
-#include "LuaCompletion.hpp"
+#include <LuaConsole/LuaConsoleModel.hpp>
+#include <LuaConsole/LuaHeader.hpp>
+#include <LuaConsole/LuaCompletion.hpp>
 #include <cstring>
 #include <algorithm>
 #include <sstream>
