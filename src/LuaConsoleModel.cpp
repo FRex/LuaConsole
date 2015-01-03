@@ -157,6 +157,7 @@ m_skipchars(kDefaultSkipChars)
     m_colors[ECC_TITLE] = 0xffffffff;
     m_colors[ECC_FRAME] = 0xa9a9a9ff;
     m_colors[ECC_BACKGROUND] = 0x007f7f7f;
+    m_colors[ECC_CURSOR] = 0x00ffffff;
 
     //always give sane history size default, even if not asked for reading it
     setHistorySize(kDefaultHistorySize);

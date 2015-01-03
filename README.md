@@ -3,8 +3,6 @@ This is a simple but powerful terminal to use with the [Lua](http://www.lua.org)
 
 The main classes behind all of the functionality except for input and rendering use only C++98 features and a common subset of 5.1/Jit and 5.2 Lua API.
 
-It builds with both LuaJit and Lua 5.2 on Linux with GCC 4.8 with -W and -Wall flags with no errors.
-
 There is a demo and an implementation of input and rendering for SFML 2.1 provided in this repo - one class for each of these tasks, four file total.
 
 

@@ -124,6 +124,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     //this can change between calls but doesnt warrant expensive rebuild
     //so doesnt bump dirtyness, so we take it right here
     m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
+    m_r.setFillColor(toColor(model->getColor(ECC_CURSOR)));
 
     //obviously no need to rebuild when model isn't any dirtier
     if(m_lastdirtyness == model->getDirtyness())
@@ -168,7 +169,6 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
             m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));
             m_r.setPosition(sf::Vector2f(x + g.bounds.left, y + g.bounds.top));
-            m_r.setFillColor(sf::Color::Cyan);
         }
 
         // Handle spaces

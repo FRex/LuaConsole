@@ -81,7 +81,7 @@ enum ECONSOLE_COLOR
     ECC_TITLE = 5, //color of the title, default white
     ECC_FRAME = 6, //color of the frame, default darkgrey
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
-
+    ECC_CURSOR = 8, //color of the cursor, default cyan
 
     ECONSOLE_COLOR_COUNT //count, keep last
 };
