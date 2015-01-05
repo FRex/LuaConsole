@@ -121,11 +121,6 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     if(!model)
         return;
 
-    //this can change between calls but doesnt warrant expensive rebuild
-    //so doesnt bump dirtyness, so we take it right here
-    m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
-    m_r.setFillColor(toColor(model->getColor(ECC_CURSOR)));
-
     //obviously no need to rebuild when model isn't any dirtier
     if(m_lastdirtyness == model->getDirtyness())
         return;
@@ -140,6 +135,9 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     //dont bother build geo that isnt going to be drawn
     if(!m_modelvisible)
         return;
+
+    m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
+    m_r.setFillColor(toColor(model->getColor(ECC_CURSOR)));
 
     const ScreenCell * screen = model->getScreenBuffer();
 

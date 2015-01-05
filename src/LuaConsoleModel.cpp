@@ -566,8 +566,11 @@ void LuaConsoleModel::toggleVisible()
 
 void LuaConsoleModel::setColor(ECONSOLE_COLOR which, unsigned color)
 {
-    if(which != ECONSOLE_COLOR_COUNT)
+    if(which != ECONSOLE_COLOR_COUNT && m_colors[which] != color)
+    {
         m_colors[which] = color;
+        ++m_dirtyness;
+    }
 }
 
 unsigned LuaConsoleModel::getColor(ECONSOLE_COLOR which) const
