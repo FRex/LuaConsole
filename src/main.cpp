@@ -86,7 +86,8 @@ int demo_echoColored(lua_State * L)
 }
 
 const char * const kColorNames[] = {
-    "error", "hint", "code", "echo", "prompt", "title", "frame", "background", 0x0
+    "error", "hint", "code", "echo", "prompt", "title", "frame", "background",
+    "cursor", 0x0
 };
 
 //set one of console colors
