@@ -106,6 +106,24 @@ void LuaSFMLConsoleInput::handleCtrlKeyEvent(sf::Event event)
         case sf::Keyboard::Right:
             m_model->moveCursorOneWord(blua::EMD_RIGHT);
             break;
+        case sf::Keyboard::Up:
+            m_model->scrollLines(-1);
+            break;
+        case sf::Keyboard::Down:
+            m_model->scrollLines(1);
+            break;
+        case sf::Keyboard::Home:
+            m_model->scrollLines(kScrollLinesBegin);
+            break;
+        case sf::Keyboard::End:
+            m_model->scrollLines(kScrollLinesEnd);
+            break;
+        case sf::Keyboard::PageUp:
+            m_model->scrollLines(-21);
+            break;
+        case sf::Keyboard::PageDown:
+            m_model->scrollLines(21);
+            break;
         default:
             //TODO:optionally do not consume all keys? (as above)
             break;
