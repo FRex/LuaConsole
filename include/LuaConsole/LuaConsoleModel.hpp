@@ -308,7 +308,7 @@ private:
     std::string m_title; //title of the console
     LuaPointerOwner<LuaConsoleModel> m_luaptr; //the lua pointer of ours that handles two way deletions
     std::string m_skipchars; //characters we don't consider part of a word when jumping over words
-    int m_firstmsg;
+    int m_firstmsg; //offset of first message - for scrolling
 
 };
 
