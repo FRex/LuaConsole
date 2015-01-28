@@ -27,7 +27,7 @@ const unsigned kURFrameChar = 0x2557u;
 const int kDefaultHistorySize = 100;
 
 //how many messages(not wide) to keep, this is for internal workings of console mostly
-const int kMessagesKeptCount = 100;
+const int kMessagesKeptCount = 3000;
 
 const char * const kHistoryFilename = "luaconsolehistory.txt";
 const char * const kInitFilename = "luaconsoleinit.lua";
