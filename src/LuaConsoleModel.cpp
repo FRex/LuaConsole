@@ -193,7 +193,7 @@ void LuaConsoleModel::moveCursor(int move)
 void LuaConsoleModel::scrollLines(int amount)
 {
     m_firstmsg += amount;
-    
+
     //below code ensures we go no further than last or first line
     m_firstmsg = std::max(m_firstmsg, 21 - static_cast<int>(m_widemsg.size()));
     m_firstmsg = std::min(m_firstmsg, 0);
@@ -408,7 +408,7 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
         m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
 
-    m_firstmsg = 0; //make this conditional?
+    scrollLines(kScrollLinesEnd); //make this conditional?
     ++m_dirtyness;
 }
 
