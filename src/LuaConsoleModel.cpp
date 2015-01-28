@@ -102,7 +102,6 @@ LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
     return ret;
 }
 
-
 LuaConsoleModel* LuaConsoleModel::checkFromRegistry(lua_State* L)
 {
     LuaConsoleModel * ret = getFromRegistry(L);
@@ -121,7 +120,8 @@ m_w(kInnerWidth),
 m_options(options),
 m_visible(options & ECO_START_VISIBLE),
 m_emptyenterrepeat(true),
-m_skipchars(kDefaultSkipChars)
+m_skipchars(kDefaultSkipChars),
+m_firstmsg(0)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -187,6 +187,16 @@ void LuaConsoleModel::moveCursor(int move)
     m_cur += move;
     m_cur = std::max<int>(m_cur, 1);
     m_cur = std::min<int>(m_lastline.size() + 1, m_cur);
+    ++m_dirtyness;
+}
+
+void LuaConsoleModel::scrollLines(int amount)
+{
+    m_firstmsg += amount;
+    
+    //below code ensures we go no further than last or first line
+    m_firstmsg = std::max(m_firstmsg, 21 - static_cast<int>(m_widemsg.size()));
+    m_firstmsg = std::min(m_firstmsg, 0);
     ++m_dirtyness;
 }
 
@@ -398,12 +408,14 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
         m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
 
+    m_firstmsg = 0; //make this conditional?
     ++m_dirtyness;
 }
 
 const std::string& LuaConsoleModel::getWideMsg(int index) const
 {
     if(index < 0) index = m_widemsg.size() + index;
+    index += m_firstmsg;
     if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty.Text;
 
     return m_widemsg[index].Text;
@@ -412,6 +424,7 @@ const std::string& LuaConsoleModel::getWideMsg(int index) const
 const ColorString& LuaConsoleModel::getWideColor(int index) const
 {
     if(index < 0) index = m_widemsg.size() + index;
+    index += m_firstmsg;
     if(index < 0 || static_cast<std::size_t>(index) >= m_widemsg.size()) return m_empty.Color;
 
     return m_widemsg[index].Color;

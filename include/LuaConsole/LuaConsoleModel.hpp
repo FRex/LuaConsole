@@ -52,6 +52,9 @@ public:
 const int kCursorHome = -100000;
 const int kCursorEnd = 100000;
 
+//constants to scroll to first or last line in scrollLines
+const int kScrollLinesEnd = 1000000000;
+const int kScrollLinesBegin = -1000000000;
 
 //console options passed at construction, they are immutable for lifetime of console
 //to simplify code, so - when in doubt - opt out
@@ -227,6 +230,11 @@ public:
     //use this for Home/End key press and for Left/Right arrow keys
     void moveCursor(int move);
 
+    //scroll lines by given amount, this is clipped to never scroll past first
+    //and last line, use this for ctrl + pageup/pagedown/up/down/home/end
+    //pass kScrollLinesEnd or kScrollLinesBegin to go as much back/forth as possible
+    void scrollLines(int amount);
+
     //move cursor by one word left or right (see EMOVE_DIRECTION) like
     //bash (at least KDE and xfce terminals) does, that is:
     //when moving left, skip a word and land on its' first char
@@ -300,6 +308,7 @@ private:
     std::string m_title; //title of the console
     LuaPointerOwner<LuaConsoleModel> m_luaptr; //the lua pointer of ours that handles two way deletions
     std::string m_skipchars; //characters we don't consider part of a word when jumping over words
+    int m_firstmsg;
 
 };
 
