@@ -48,6 +48,12 @@ These are the key controls for SFML input but they are inspired by bash, gdb, et
 * Tab - trigger code completion
 * Ctrl + Left - jump a word left
 * Ctrl + Right - jump  a word left
+* Ctrl + Up - scroll up
+* Ctrl + Down - scroll down
+* Ctrl + PageUp - scroll up one page
+* Ctrl + PageDown - scroll down one page
+* Ctrl + Home - scroll to first line
+* Ctrl + End - scroll to last line
 
 ###Licensing
 It's licensed under MIT license, see LICENSE file.
