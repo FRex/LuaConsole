@@ -15,7 +15,6 @@ const int kInnerWidth = 78;
 const char * const kMetaname = "bla_LuaConsole";
 
 //frame/cursor/special unicode chars:
-const unsigned kFullBlockChar = 0x2588u;
 const unsigned kVerticalBarChar = 0x2550u;
 const unsigned kHorizontalBarChar = 0x2551u;
 const unsigned kULFrameChar = 0x2554u;
