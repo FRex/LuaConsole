@@ -117,11 +117,13 @@ m_lastupdate(0u),
 m_cur(1),
 L(0x0),
 m_w(kInnerWidth),
+m_empty(),
 m_options(options),
 m_visible(options & ECO_START_VISIBLE),
 m_emptyenterrepeat(true),
 m_skipchars(kDefaultSkipChars),
-m_firstmsg(0)
+m_firstmsg(0),
+m_printeval(true)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -158,6 +160,7 @@ m_firstmsg(0)
     m_colors[ECC_FRAME] = 0xa9a9a9ff;
     m_colors[ECC_BACKGROUND] = 0x007f7f7f;
     m_colors[ECC_CURSOR] = 0x00ffffff;
+    m_colors[ECC_EVAL] = 0xa9a9a9ff;
 
     //always give sane history size default, even if not asked for reading it
     setHistorySize(kDefaultHistorySize);
@@ -248,6 +251,33 @@ void LuaConsoleModel::readHistory(int change)
     ++m_dirtyness;
 }
 
+void LuaConsoleModel::printLuaStackInColor(int first, int last, unsigned color)
+{
+    std::stringstream ss;
+    for(int i = first; i <= last; ++i)
+    {
+        //we pretty print just the way tostring lua call does
+        switch(lua_type(L, i))
+        {
+            case LUA_TNUMBER:
+            case LUA_TSTRING:
+                ss << lua_tostring(L, i);
+                break;
+            case LUA_TBOOLEAN:
+                ss << (lua_toboolean(L, i)?"true":"false");
+                break;
+            case LUA_TNIL:
+                ss << "nil";
+                break;
+            default:
+                ss << luaL_typename(L, i) << ": " << lua_topointer(L, i);
+                break;
+        } //switch lua type i
+        ss << ' ';
+    }//for i = first to last
+    echoColored(ss.str(), color);
+}
+
 void LuaConsoleModel::parseLastLine()
 {
     if(m_lastline.size() == 0u && m_emptyenterrepeat && !m_history.empty())
@@ -273,6 +303,7 @@ void LuaConsoleModel::parseLastLine()
 
     if(L)
     {
+        int oldtop = lua_gettop(L);
         if(luaL_dostring(L, m_buffcmd.c_str()))
         {
             std::size_t len;
@@ -289,6 +320,8 @@ void LuaConsoleModel::parseLastLine()
         else
         {
             m_buffcmd.clear(); //worked & done - clear it
+            if(m_printeval && oldtop != lua_gettop(L))
+                printLuaStackInColor(oldtop + 1, lua_gettop(L), m_colors[ECC_EVAL]);
         }
     }//L is not null
     else
@@ -764,6 +797,16 @@ void LuaConsoleModel::setSkipCharacters(const std::string& chars)
 const std::string& LuaConsoleModel::getSkipCharacters() const
 {
     return m_skipchars;
+}
+
+void LuaConsoleModel::setPrintEval(bool print)
+{
+    m_printeval = print;
+}
+
+bool LuaConsoleModel::getPrintEval() const
+{
+    return m_printeval;
 }
 
 } //blua
