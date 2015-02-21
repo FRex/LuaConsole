@@ -86,11 +86,11 @@ enum ECONSOLE_COLOR
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
     ECC_CURSOR = 8, //color of the cursor, default cyan
     ECC_EVAL = 9, //color of evals, default darkgrey
-    
+
     ECONSOLE_COLOR_COUNT //count, keep last
 };
 
-        
+
 //types of console callbacks
 
 enum ECALLBACK_TYPE
@@ -222,16 +222,23 @@ public:
     //see moveCursorOneWord for explanation about what exactly happens then
     //PS: this is set to a sane default for lua
     const std::string& getSkipCharacters() const;
-    
+
     //set whether or not all code typed by hand should print its' return
     //values to console, this is on by default
     //it means that where there are return values (even if they are nil) it
     //will print them to console with ECC_EVAL color
     //(when there are no values (0) there is no printing done)
     void setPrintEval(bool print);
-    
+
     //check whether or not evals print to console
     bool getPrintEval() const;
+
+    //this will always try evalute with "return " added to the string first
+    //to allow returning values easily without typing return in user code
+    void setAddReturn(bool add);
+
+    //check whether or not we try add a return
+    bool getAddReturn() const;
 
 
     //API FOR CONTROLLER:///////////////////////////////////////////////////////
@@ -296,6 +303,7 @@ private:
     const ColorString& getWideColor(int index) const;
     void updateBuffer() const;
     void printLuaStackInColor(int first, int last, unsigned color);
+    bool tryEval(bool addreturn);
 
     CallbackFunc m_callbackfuncs[ECALLBACK_TYPE_COUNT]; //callbakcs called on certain events
     void * m_callbackdata[ECALLBACK_TYPE_COUNT]; //data for callbacks
@@ -321,6 +329,7 @@ private:
     std::string m_skipchars; //characters we don't consider part of a word when jumping over words
     int m_firstmsg; //offset of first message - for scrolling
     bool m_printeval; //do we print returned values of handtyped scripts?
+    bool m_addreturn;
 
 };
 

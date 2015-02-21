@@ -122,7 +122,8 @@ m_visible(options & ECO_START_VISIBLE),
 m_emptyenterrepeat(true),
 m_skipchars(kDefaultSkipChars),
 m_firstmsg(0),
-m_printeval(true)
+m_printeval(true),
+m_addreturn(true)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -277,6 +278,36 @@ void LuaConsoleModel::printLuaStackInColor(int first, int last, unsigned color)
     echoColored(ss.str(), color);
 }
 
+//NOTE: we can't do dostring here because we would confuse runtime and parse
+//errors then, in example:
+//"a .. 10" when a is nil will fail at runtime with return added because it
+//tries to concat nil but it DOES parse, so the error should be about nil a
+//but if we did dostring we would go on (since return added version failed)
+//and try "a .. 10" itself which would would fail to parse so the error would
+//be parse error which is wrong, because we want concat error from return
+//added version then
+
+bool LuaConsoleModel::tryEval(bool addreturn)
+{
+    if(addreturn)
+    {
+        const std::string code = "return " + m_buffcmd;
+        if(BLA_LUA_OK == luaL_loadstring(L, code.c_str()))
+        {
+            return true;
+        }
+        else
+        {
+            lua_pop(L, 1); //pop error - it doesn't matter with added return
+            return false;
+        }
+    } //if addreturn
+    else
+    {
+        return BLA_LUA_OK == luaL_loadstring(L, m_buffcmd.c_str());
+    }
+}
+
 void LuaConsoleModel::parseLastLine()
 {
     if(m_lastline.size() == 0u && m_emptyenterrepeat && !m_history.empty())
@@ -302,8 +333,23 @@ void LuaConsoleModel::parseLastLine()
 
     if(L)
     {
-        int oldtop = lua_gettop(L);
-        if(luaL_dostring(L, m_buffcmd.c_str()))
+        const int oldtop = lua_gettop(L);
+        bool evalok;
+        if(m_addreturn)
+        {
+            evalok = tryEval(true) || tryEval(false);
+        }
+        else
+        {
+            evalok = tryEval(false);
+        }
+        if(evalok && BLA_LUA_OK == lua_pcall(L, 0, LUA_MULTRET, 0))
+        {
+            m_buffcmd.clear(); //worked & done - clear it
+            if(m_printeval && oldtop != lua_gettop(L))
+                printLuaStackInColor(oldtop + 1, lua_gettop(L), m_colors[ECC_EVAL]);
+        }
+        else
         {
             std::size_t len;
             const char * err = lua_tolstring(L, -1, &len);
@@ -316,12 +362,6 @@ void LuaConsoleModel::parseLastLine()
 
             lua_pop(L, 1);
         }//got an error, real or <eof>/incomplete chunk one
-        else
-        {
-            m_buffcmd.clear(); //worked & done - clear it
-            if(m_printeval && oldtop != lua_gettop(L))
-                printLuaStackInColor(oldtop + 1, lua_gettop(L), m_colors[ECC_EVAL]);
-        }
     }//L is not null
     else
     {
@@ -806,6 +846,16 @@ void LuaConsoleModel::setPrintEval(bool print)
 bool LuaConsoleModel::getPrintEval() const
 {
     return m_printeval;
+}
+
+void LuaConsoleModel::setAddReturn(bool add)
+{
+    m_addreturn = add;
+}
+
+bool LuaConsoleModel::getAddReturn() const
+{
+    return m_addreturn;
 }
 
 } //blua
