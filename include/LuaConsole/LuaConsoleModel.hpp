@@ -115,6 +115,17 @@ enum EMOVE_DIRECTION
 //a single UTF-32 character* in console, with its' color
 //*so far it can only be an ascii char but this might change
 
+//possible outcomes of parsing a line
+
+enum ELINE_PARSE_RESULT
+{
+    ELPR_OK = 0, //it parsed and ran
+    ELPR_MORE, //it parsed but it's not a complete chunk yet
+    ELPR_PARSE_ERROR, //it didn't parse
+    ELPR_RUNTIME_ERROR, //it parsed but didn't run
+    ELPR_NO_LUA //lua state ptr is not set
+};
+
 class ScreenCell
 {
 public:
@@ -266,8 +277,9 @@ public:
     void readHistory(int change);
 
     //send last line to lua state (or print error), incomplete chunks are handled OK too
+    //it returns whether code chunk ran, had errors in parse/run or is not yet completed
     //use this for Enter/Return key press
-    void parseLastLine();
+    ELINE_PARSE_RESULT parseLastLine();
 
     //add character to last line, use this for normal typing, etc.
     void addChar(char c);

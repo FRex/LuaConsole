@@ -308,8 +308,9 @@ bool LuaConsoleModel::tryEval(bool addreturn)
     }
 }
 
-void LuaConsoleModel::parseLastLine()
+ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
 {
+    ELINE_PARSE_RESULT ret = ELPR_OK;
     if(m_lastline.size() == 0u && m_emptyenterrepeat && !m_history.empty())
         m_lastline = m_history.back();
 
@@ -353,13 +354,13 @@ void LuaConsoleModel::parseLastLine()
         {
             std::size_t len;
             const char * err = lua_tolstring(L, -1, &len);
-
+            ret = ELPR_MORE;
             if(!blua::incompleteChunkError(err, len))
             {
                 m_buffcmd.clear(); //failed normally - clear it
                 echoColored(err, m_colors[ECC_ERROR]);
+                ret = evalok?ELPR_RUNTIME_ERROR:ELPR_PARSE_ERROR;
             }
-
             lua_pop(L, 1);
         }//got an error, real or <eof>/incomplete chunk one
     }//L is not null
@@ -367,11 +368,13 @@ void LuaConsoleModel::parseLastLine()
     {
         //say kindly we are kind of in trouble
         echoColored("Lua state pointer is NULL, commands have no effect", m_colors[ECC_ERROR]);
+        ret = ELPR_NO_LUA;
     }//L is null
 
     m_lastline.clear();
     m_cur = 1;
     ++m_dirtyness;
+    return ret;
 }
 
 void LuaConsoleModel::addChar(char c)
