@@ -182,7 +182,7 @@ LuaConsoleModel::~LuaConsoleModel()
 {
     //save history to file if desired, append
     if(m_options & ECO_HISTORY)
-        saveHistoryToFile(kHistoryFilename, true);
+        saveHistoryToFile(kHistoryFilename, false);
 }
 
 void LuaConsoleModel::moveCursor(int move)
