@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include <LuaConsole/LuaHeader.hpp>
+#include <lua.hpp>
 #include <LuaConsole/LuaConsoleModel.hpp>
 #include <LuaConsole/LuaSFMLConsoleView.hpp>
 #include <LuaConsole/LuaSFMLConsoleInput.hpp>
