@@ -86,6 +86,7 @@ enum ECONSOLE_COLOR
     ECC_BACKGROUND = 7, //color of the background, default halfcyan - 0x007f7f7f which is half of cyan
     ECC_CURSOR = 8, //color of the cursor, default cyan
     ECC_EVAL = 9, //color of evals, default darkgrey
+    ECC_HISTORY = 10, //color of history in comment command, default dark golden rod (0xb8860bff)
 
     ECONSOLE_COLOR_COUNT //count, keep last
 };
@@ -251,6 +252,16 @@ public:
     //check whether or not we try add a return
     bool getAddReturn() const;
 
+    //when enabled this feature will make it so some special comments entered
+    //alone into prompt when the console is not mid chunk will triggers special
+    //operations like displaying history or clearing the screen
+    void setCommentCommands(bool enable);
+
+    //check whether or not comment commands are enabled
+    bool getCommentCommands() const;
+
+    //clear the console screen space messages (but not the history)
+    void clearScreen();
 
     //API FOR CONTROLLER:///////////////////////////////////////////////////////
 
@@ -316,6 +327,7 @@ private:
     void updateBuffer() const;
     void printLuaStackInColor(int first, int last, unsigned color);
     bool tryEval(bool addreturn);
+    void checkSpecialComments();
 
     CallbackFunc m_callbackfuncs[ECALLBACK_TYPE_COUNT]; //callbakcs called on certain events
     void * m_callbackdata[ECALLBACK_TYPE_COUNT]; //data for callbacks
@@ -343,6 +355,7 @@ private:
     bool m_printeval; //do we print returned values of handtyped scripts?
     bool m_addreturn; //do we try to add 'return ' to code to try return evaluated expressions
     std::string m_savedlastline; //last line saved when scrolling history
+    bool m_commentcommands; //do we use special comments in prompt to trigger console commands
 
 };
 

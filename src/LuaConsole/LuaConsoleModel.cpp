@@ -123,7 +123,8 @@ m_emptyenterrepeat(true),
 m_skipchars(kDefaultSkipChars),
 m_firstmsg(0),
 m_printeval(true),
-m_addreturn(true)
+m_addreturn(true),
+m_commentcommands(true)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -161,6 +162,7 @@ m_addreturn(true)
     m_colors[ECC_BACKGROUND] = 0x007f7f7f;
     m_colors[ECC_CURSOR] = 0x00ffffff;
     m_colors[ECC_EVAL] = 0xa9a9a9ff;
+    m_colors[ECC_HISTORY] = 0xb8860bff;
 
     //always give sane history size default, even if not asked for reading it
     setHistorySize(kDefaultHistorySize);
@@ -338,6 +340,8 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
     if(m_callbackfuncs[ECT_NEWHISTORY])
         m_callbackfuncs[ECT_NEWHISTORY](this, m_callbackdata[ECT_NEWHISTORY]);
 
+    //if we are not midchunk then this code is fresh
+    const bool freshcode = m_buffcmd.empty();
     m_buffcmd += m_lastline;
     m_buffcmd += '\n';
 
@@ -380,10 +384,24 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
         ret = ELPR_NO_LUA;
     }//L is null
 
+    //if this line was freshcode and cmd commands feature is enabled, check it
+    if(freshcode && m_commentcommands)
+        checkSpecialComments();
+
     m_lastline.clear();
     m_cur = 1;
     ++m_dirtyness;
     return ret;
+}
+
+void LuaConsoleModel::checkSpecialComments()
+{
+    if(m_lastline == "--clear")
+        clearScreen();
+
+    if(m_lastline == "--history")
+        for(std::size_t i = 0u; i < m_history.size(); ++i)
+            echoColored(m_history[i], m_colors[ECC_HISTORY]);
 }
 
 void LuaConsoleModel::addChar(char c)
@@ -868,6 +886,23 @@ void LuaConsoleModel::setAddReturn(bool add)
 bool LuaConsoleModel::getAddReturn() const
 {
     return m_addreturn;
+}
+
+void LuaConsoleModel::setCommentCommands(bool enable)
+{
+    m_commentcommands = enable;
+}
+
+bool LuaConsoleModel::getCommentCommands() const
+{
+    return m_commentcommands;
+}
+
+void LuaConsoleModel::clearScreen()
+{
+    m_firstmsg = 0;
+    m_msg.clear();
+    m_widemsg.clear();
 }
 
 } //blua
