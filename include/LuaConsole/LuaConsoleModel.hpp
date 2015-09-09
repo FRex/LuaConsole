@@ -341,7 +341,8 @@ private:
     std::string m_skipchars; //characters we don't consider part of a word when jumping over words
     int m_firstmsg; //offset of first message - for scrolling
     bool m_printeval; //do we print returned values of handtyped scripts?
-    bool m_addreturn;
+    bool m_addreturn; //do we try to add 'return ' to code to try return evaluated expressions
+    std::string m_savedlastline; //last line saved when scrolling history
 
 };
 

@@ -230,17 +230,26 @@ void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
 
 void LuaConsoleModel::readHistory(int change)
 {
+    const bool waspromp = static_cast<std::size_t>(m_hindex) == m_history.size();
+
     m_hindex += change;
     m_hindex = std::max<int>(m_hindex, 0);
     m_hindex = std::min<int>(m_hindex, m_history.size());
 
     if(static_cast<std::size_t>(m_hindex) == m_history.size())
     {
-        m_lastline.clear();
-        moveCursor(kCursorHome);
+        //if we came back from history, swap last line in
+        if(!waspromp)
+            std::swap(m_lastline, m_savedlastline);
+
+        moveCursor(kCursorEnd);
     }
     else
     {
+        //if we just entered history, swap out last line
+        if(waspromp)
+            std::swap(m_lastline, m_savedlastline);
+
         m_lastline = m_history[m_hindex];
         if(m_lastline.size() > 77u)
             m_lastline.resize(77u);
