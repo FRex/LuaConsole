@@ -124,7 +124,8 @@ m_skipchars(kDefaultSkipChars),
 m_firstmsg(0),
 m_printeval(true),
 m_addreturn(true),
-m_commentcommands(true)
+m_commentcommands(true),
+m_lastlineoffset(0u)
 {
     for(int i = 0; i < 24 * 80; ++i)
     {
@@ -192,6 +193,7 @@ void LuaConsoleModel::moveCursor(int move)
     m_cur += move;
     m_cur = std::max<int>(m_cur, 1);
     m_cur = std::min<int>(m_lastline.size() + 1, m_cur);
+    ensureCurInView();
     ++m_dirtyness;
 }
 
@@ -226,6 +228,7 @@ void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
         //unfortunate 'hax' of m_Cur being in 'screen space', not 'line space'
         //so 0th char in line is 1 in m_cur, so we add 1
         m_cur = targ + 1;
+        ensureCurInView();
         ++m_dirtyness;
     }
 }
@@ -244,6 +247,7 @@ void LuaConsoleModel::readHistory(int change)
         if(!waspromp)
             std::swap(m_lastline, m_savedlastline);
 
+        m_lastlineoffset = 0u;
         moveCursor(kCursorEnd);
     }
     else
@@ -253,9 +257,7 @@ void LuaConsoleModel::readHistory(int change)
             std::swap(m_lastline, m_savedlastline);
 
         m_lastline = m_history[m_hindex];
-        if(m_lastline.size() > 77u)
-            m_lastline.resize(77u);
-
+        m_lastlineoffset = 0u;
         moveCursor(kCursorEnd);
     }
 
@@ -390,6 +392,7 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
 
     m_lastline.clear();
     m_cur = 1;
+    m_lastlineoffset = 0u;
     ++m_dirtyness;
     return ret;
 }
@@ -406,11 +409,12 @@ void LuaConsoleModel::checkSpecialComments()
 
 void LuaConsoleModel::addChar(char c)
 {
-    if(c < ' ' || c >= 127 || m_cur >= kInnerWidth || m_lastline.size() + 1u >= kInnerWidth)
+    if(c < ' ' || c >= 127)
         return;
 
     m_lastline.insert(m_lastline.begin() + m_cur - 1, c);
     ++m_cur;
+    ensureCurInView();
     ++m_dirtyness;
 }
 
@@ -420,6 +424,7 @@ void LuaConsoleModel::backspace()
     {
         --m_cur;
         m_lastline.erase(m_cur - 1, 1);
+        ensureCurInView();
         ++m_dirtyness;
     }
 }
@@ -534,7 +539,7 @@ const ColorString& LuaConsoleModel::getWideColor(int index) const
 
 int LuaConsoleModel::getCurPos() const
 {
-    return m_cur;
+    return m_cur - m_lastlineoffset;
 }
 
 static int ConsoleModel_echo(lua_State * L)
@@ -780,9 +785,9 @@ void LuaConsoleModel::updateBuffer() const
         a[x].Color = m_colors[ECC_PROMPT];
     }
 
-    for(std::size_t x = 0; x < m_lastline.size(); ++x)
+    for(std::size_t x = 0; x < kInnerWidth && (m_lastlineoffset + x) < m_lastline.size(); ++x)
     {
-        a[x].Char = m_lastline[x];
+        a[x].Char = m_lastline[m_lastlineoffset + x];
     }
 }
 
@@ -903,6 +908,18 @@ void LuaConsoleModel::clearScreen()
     m_firstmsg = 0;
     m_msg.clear();
     m_widemsg.clear();
+}
+
+void LuaConsoleModel::ensureCurInView()
+{
+    if(static_cast<unsigned>(m_cur) <= m_lastlineoffset)
+    {
+        m_lastlineoffset = m_cur - 1;
+    }
+    while(static_cast<unsigned>(m_cur) > m_lastlineoffset + kInnerWidth)
+    {
+        ++m_lastlineoffset;
+    }
 }
 
 } //blua

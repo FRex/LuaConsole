@@ -328,6 +328,7 @@ private:
     void printLuaStackInColor(int first, int last, unsigned color);
     bool tryEval(bool addreturn);
     void checkSpecialComments();
+    void ensureCurInView();
 
     CallbackFunc m_callbackfuncs[ECALLBACK_TYPE_COUNT]; //callbakcs called on certain events
     void * m_callbackdata[ECALLBACK_TYPE_COUNT]; //data for callbacks
@@ -356,6 +357,7 @@ private:
     bool m_addreturn; //do we try to add 'return ' to code to try return evaluated expressions
     std::string m_savedlastline; //last line saved when scrolling history
     bool m_commentcommands; //do we use special comments in prompt to trigger console commands
+    unsigned m_lastlineoffset; //offset of last line when it's longer than term width
 
 };
 
