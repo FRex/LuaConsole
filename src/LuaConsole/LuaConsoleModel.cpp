@@ -623,12 +623,9 @@ void LuaConsoleModel::tryComplete()
     std::string last;
 
     priv::prepareHints(L, m_lastline, last);
-    const bool normalhints = priv::collectHints(L, possible, last, false);
-    const bool hasmetaindex = luaL_getmetafield(L, -1, "__index");
-    const bool metahints = hasmetaindex && priv::collectHints(L, possible, last, false);
-    if(!(normalhints || metahints))
+    if(!priv::collectHints(L, possible, last, false))
     {
-        //if all else fails, assume we want _any_ completion and use global table
+        //if no hints, assume we want _any_ completion and use global table
         bla_lua_pushglobaltable(L);
         priv::collectHints(L, possible, last, false);
     }

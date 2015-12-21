@@ -83,10 +83,14 @@ void prepareHints(lua_State * L, std::string str, std::string& last)
     }
 }
 
-bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::string& last, bool usehidden)
+static bool collectHintsRecurse(lua_State * L, std::vector<std::string>& possible, const std::string& last, bool usehidden, unsigned left)
 {
+    if(left == 0u)
+        return true;
+
     const bool skipunderscore = last.empty() && !usehidden;
-    if(lua_type(L, -1) != LUA_TTABLE) return false;
+
+    //collect hints from table currently on top
     lua_pushnil(L); //prepare iteration
     while(lua_next(L, -2))
     {
@@ -111,7 +115,44 @@ bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::
 
         lua_pop(L, 1); //pop our str copy and let lua_next see the key itself
     }
+
+    //see if the table has index itself, for chaining metas
+    if(luaL_getmetafield(L, -1, "__index"))
+    {
+        if(lua_istable(L, -1))
+            return collectHintsRecurse(L, possible, last, usehidden, left - 1);
+
+        lua_pop(L, 1); //pop it if it's not table
+    }
+    lua_pop(L, 1); //pop the table itself
     return true;
+}
+
+//replace value at top of the stack with __index TABLE from metatable
+
+static bool tryReplaceWithMetaIndex(lua_State * L)
+{
+    if(!luaL_getmetafield(L, -1, "__index"))
+        return false;
+
+    if(lua_type(L, -1) != LUA_TTABLE)
+    {
+        lua_pop(L, 2); //pop both value and table
+        return false;
+    }
+
+    lua_insert(L, -2); //move our table under the value
+    lua_pop(L, 1); //and pop the value itself
+    return true;
+}
+
+bool collectHints(lua_State * L, std::vector<std::string>& possible, const std::string& last, bool usehidden)
+{
+    if(lua_type(L, -1) != LUA_TTABLE && !tryReplaceWithMetaIndex(L))
+        return false;
+
+    //it's a table, so just collect on it
+    return collectHintsRecurse(L, possible, last, usehidden, 10u);
 }
 
 std::string commonPrefix(const std::vector<std::string>& possible)
