@@ -595,14 +595,16 @@ void LuaConsoleModel::setL(lua_State * L)
 
         if(m_options & ECO_INIT)
         {
-            if(luaL_dofile(L, kInitFilename) == BLA_LUA_OK)
+            if(luaL_loadfile(L, kInitFilename) || lua_pcall(L, 0, 1, 0))
             {
-                m_visible = lua_toboolean(L, -1);
+                echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
+                lua_pop(L, 1); //pop the error message
+                m_visible = true; //crapped up init is important so show console right away
             }
             else
             {
-                echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
-                m_visible = true; //crapped up init is important so show console right away
+                m_visible = lua_toboolean(L, -1);
+                lua_pop(L, 1); //pop that boolean
             }
         }
     }//if L
