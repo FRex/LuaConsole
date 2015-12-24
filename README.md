@@ -1,14 +1,14 @@
 #BLuaConsole
 This is a simple but powerful terminal to use with the [Lua](http://www.lua.org) language.
 
-The main classes behind all of the functionality except for input and rendering use only C++98 features and a common subset of 5.1/Jit and 5.2 Lua API.
+The main classes behind all of the functionality except for input and rendering use only C++98 features and a common subset of Lua 5.3, 5.2 and 5.1 APIs.
 
 There is a demo and an implementation of input and rendering for SFML 2.1 provided in this repo - one class for each of these tasks, four file total.
 
 
 ##Features:
 * Easy to interface with any font rendering and key input
-* Works with both Lua 5.2 and Lua 5.1, including LuaJIT
+* Works with both Lua 5.3, 5.2 and 5.1, including LuaJIT
 * (Optionally) Loads and runs an init script from luaconsoleinit.lua
 * (Optionally) Loads and saves commands history from luaconsolehistory.txt
 * Allows loading and saving commands history from plaintext file or setting each line directly (for custom filesystems etc.)

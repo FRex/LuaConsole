@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   LuaHeader.hpp
  * Author: frex
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef LUAHEADER_HPP
-#define	LUAHEADER_HPP
+#define LUAHEADER_HPP
 
 #include <lua.hpp>
 #include <cstddef>
@@ -18,16 +18,16 @@
 //since we define things that might be defined (ie. equal, which is deprecated,
 //do missing by default but may be present) we prepend bla_ to them
 //this also lets code of model know which functions are 'common' between 51 and
-//52 and which are 'patchwork' to allow this code sharing,
+//52 and 53 and which are 'patchwork' to allow this code sharing,
 //incompleteChunkError is exempt from that, since it's in our lua namespace,
 //it's not a symbol from either of Lua versions and it ended up here just
 //because it depends on the version of lua as well
 
 
-//------------------------------------------------------------------------------
-//LUA 5.2 ----------------------------------------------------------------------
+//----------------------------------------------------------------------
+//LUA 5.2 AND LUA 5.3 --------------------------------------------------
 
-#if (LUA_VERSION_NUM == 502)
+#if ((LUA_VERSION_NUM == 502) || (LUA_VERSION_NUM == 503))
 
 namespace blua {
 
@@ -49,10 +49,10 @@ inline int bla_lua_equal(lua_State * L, int index1, int index2)
 
 #define BLA_LUA_OK LUA_OK
 
-#endif //LUA 5.2
+#endif //LUA 5.2 or LUA 5.3
 
-//------------------------------------------------------------------------------
-//LUA JIT AND 5.1 --------------------------------------------------------------
+//----------------------------------------------------------------------
+//LUA JIT AND 5.1 ------------------------------------------------------
 #if (LUA_VERSION_NUM == 501)
 
 namespace blua {
@@ -74,5 +74,5 @@ inline bool incompleteChunkError(const char * err, std::size_t len)
 
 #endif //LUA 5.1
 
-#endif	/* LUAHEADER_HPP */
+#endif  /* LUAHEADER_HPP */
 
