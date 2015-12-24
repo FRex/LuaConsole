@@ -113,9 +113,6 @@ enum EMOVE_DIRECTION
     EMD_LEFT
 };
 
-//a single UTF-32 character* in console, with its' color
-//*so far it can only be an ascii char but this might change
-
 //possible outcomes of parsing a line
 
 enum ELINE_PARSE_RESULT
@@ -126,6 +123,9 @@ enum ELINE_PARSE_RESULT
     ELPR_RUNTIME_ERROR, //it parsed but didn't run
     ELPR_NO_LUA //lua state ptr is not set
 };
+
+//a single UTF-32 character* in console, with its' color
+//*so far it can only be an ascii char but this might change
 
 class ScreenCell
 {
@@ -183,7 +183,7 @@ public:
     //any input and shouldn't draw
     void setVisible(bool visible);
 
-    //check whether or not the conosle is visible
+    //check whether or not the console is visible
     bool isVisible() const;
 
     //toggle visibility of the console, equivalent to setVisible(!isVisible())

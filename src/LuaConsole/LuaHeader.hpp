@@ -18,9 +18,7 @@
 //since we define things that might be defined (ie. equal, which is deprecated,
 //do missing by default but may be present) we prepend bla_ to them
 //this also lets code of model know which functions are 'common' between 51 and
-//52 and which are 'patchwork' to allow this code sharing, also - this prevents
-//getting in the way of/confusing the user if they use this header as well
-//
+//52 and which are 'patchwork' to allow this code sharing,
 //incompleteChunkError is exempt from that, since it's in our lua namespace,
 //it's not a symbol from either of Lua versions and it ended up here just
 //because it depends on the version of lua as well
