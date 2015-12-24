@@ -634,17 +634,22 @@ void LuaConsoleModel::tryComplete()
 
     if(possible.size() > 1u)
     {
-        std::string msg = possible[0];
-        for(std::size_t i = 1u; i < possible.size(); ++i)
-        {
-            msg += " " + possible[i];
-        }
-        echoColored(msg, m_colors[ECC_HINT]);
-
         const std::string commonprefix = priv::commonPrefix(possible);
-        m_lastline += commonprefix.substr(last.size());
-        ++m_dirtyness;
-        moveCursor(kCursorEnd);
+        //if no common prefix or if we already have it or more
+        if(commonprefix.empty() || commonprefix.size() <= last.size())
+        {
+            std::string msg = possible[0];
+            for(std::size_t i = 1u; i < possible.size(); ++i)
+                msg += " " + possible[i];
+
+            echoColored(msg, m_colors[ECC_HINT]);
+        }
+        else
+        {
+            m_lastline += commonprefix.substr(last.size());
+            ++m_dirtyness;
+            moveCursor(kCursorEnd);
+        } //commonprefix is not empty
     }
     else if(possible.size() == 1)
     {
