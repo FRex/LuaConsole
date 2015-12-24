@@ -47,19 +47,10 @@ void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates /* stat
     if(!m_font || !m_modelvisible)
         return;
 
-    //save old view and set "normal" view for our drawing
+    //draw in a single call in a 1:1 view
     sf::View v = target.getView();
     target.setView(sf::View(sf::FloatRect(sf::Vector2f(), sf::Vector2f(target.getSize()))));
-
-    sf::RectangleShape sha;
-    sha.setPosition(m_vertices.getBounds().left, m_vertices.getBounds().top);
-    sha.setSize(sf::Vector2f(m_vertices.getBounds().width, m_vertices.getBounds().height));
-    sha.setFillColor(m_consolecolor);
-    target.draw(sha);
-    target.draw(m_r);
     target.draw(m_vertices, &m_font->getTexture(kFontSize));
-
-    //reset original view
     target.setView(v);
 }
 
@@ -136,13 +127,14 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     if(!m_modelvisible)
         return;
 
-    m_consolecolor = toColor(model->getColor(ECC_BACKGROUND));
-    m_r.setFillColor(toColor(model->getColor(ECC_CURSOR)));
-
     const ScreenCell * screen = model->getScreenBuffer();
 
     // Clear the previous geometry
     m_vertices.clear();
+
+    //reserve 4 vertices for background
+    for(int i = 0; i < 4; ++i)
+        m_vertices.append(sf::Vertex());
 
     // Precompute the variables needed by the algorithm
     float hspace = m_font->getGlyph(L' ', kFontSize, false).advance;
@@ -156,17 +148,27 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     {
         sf::Uint32 curChar = screen[i].Char;
 
+        //move the reserved vertices so they won't affect the bounds
+        if(i == 1u)
+            for(std::size_t j = 0u; j < 4u; ++j)
+                m_vertices[j].position = m_vertices[4].position;
+
         // Apply the kerning offset
         x += m_font->getKerning(prevChar, curChar, kFontSize);
         prevChar = curChar;
 
-        //check if cursor is here and if yes, add fullblock gylph
+        //add a cursor under the glyph if this is the right position
         if(model->getCurPos() + 80u * 22u == i)
         {
             const sf::Uint32 kFullBlockChar = 0x2588u; //unicode fullblock
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
-            m_r.setSize(sf::Vector2f(g.bounds.width, g.bounds.height));
-            m_r.setPosition(sf::Vector2f(x + g.bounds.left, y + g.bounds.top));
+            const sf::Color cc = toColor(model->getColor(ECC_CURSOR));
+            const sf::Vector2f tc = sf::Vector2f(1.f, 1.f); //solid pixel in SFML
+
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left, y + g.bounds.top), cc, tc));
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left, y + g.bounds.top + g.bounds.height), cc, tc));
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left + g.bounds.width, y + g.bounds.top + g.bounds.height), cc, tc));
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left + g.bounds.width, y + g.bounds.top), cc, tc));
         }
 
         // Handle spaces
@@ -211,6 +213,21 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
             prevChar = '\n';
         }
     } //for(std::size_t i = 0u; i < 24u * 80u; ++i)
+
+    //fill the reserved background vertices
+    const sf::FloatRect vbounds = m_vertices.getBounds();
+    m_vertices[0].position = sf::Vector2f(vbounds.left, vbounds.top);
+    m_vertices[1].position = sf::Vector2f(vbounds.left, vbounds.top + vbounds.height);
+    m_vertices[2].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top + vbounds.height);
+    m_vertices[3].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top);
+
+    const sf::Color bcolor = toColor(model->getColor(ECC_BACKGROUND));
+    for(std::size_t j = 0u; j < 4u; ++j)
+    {
+        //SFML assumes this is a solid pixel
+        m_vertices[j].texCoords = sf::Vector2f(1.f, 1.f);
+        m_vertices[j].color = bcolor;
+    }
 }//geoRebuild
 
 } //blua

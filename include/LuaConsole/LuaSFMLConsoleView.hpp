@@ -29,10 +29,6 @@ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     unsigned m_lastdirtyness; //for caching/laziness
-
-    sf::Color m_consolecolor;
-    sf::RectangleShape m_r; //cursor shape?
-
     const sf::Font * m_font;
     bool m_ownfont;
     sf::VertexArray m_vertices; //vertices with font
