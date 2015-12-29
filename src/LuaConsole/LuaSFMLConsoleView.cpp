@@ -42,7 +42,7 @@ LuaSFMLConsoleView::~LuaSFMLConsoleView()
         delete m_font;
 }
 
-void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates /* states --unused */) const
+void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     if(!m_font || !m_modelvisible)
         return;
@@ -50,7 +50,8 @@ void LuaSFMLConsoleView::draw(sf::RenderTarget& target, sf::RenderStates /* stat
     //draw in a single call in a 1:1 view
     sf::View v = target.getView();
     target.setView(sf::View(sf::FloatRect(sf::Vector2f(), sf::Vector2f(target.getSize()))));
-    target.draw(m_vertices, &m_font->getTexture(kFontSize));
+    states.texture = &m_font->getTexture(kFontSize);
+    target.draw(m_vertices, states);
     target.setView(v);
 }
 
