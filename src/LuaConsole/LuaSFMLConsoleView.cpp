@@ -145,7 +145,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 
     sf::Uint32 prevChar = 0u;
 
-    for(std::size_t i = 0u; i < 24u * 80u; ++i)
+    for(std::size_t i = 0u; i < model->getConsoleWidth() * model->getConsoleHeight(); ++i)
     {
         sf::Uint32 curChar = screen[i].Char;
 
@@ -159,7 +159,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         prevChar = curChar;
 
         //add a cursor under the glyph if this is the right position
-        if(model->getCurPos() + 80u * 22u == i)
+        if(model->getCurPos() + (model->getConsoleWidth() * (model->getConsoleHeight() - 2)) == i)
         {
             const sf::Uint32 kFullBlockChar = 0x2588u; //unicode fullblock
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
@@ -203,7 +203,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         // Advance to the next character
         x += glyph.advance;
 
-        if(i % 80 == 79)
+        if((i + 1) % model->getConsoleWidth() == 0)
         {
             y += vspace;
             x = 0;
@@ -213,7 +213,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
             //font anyway
             prevChar = '\n';
         }
-    } //for(std::size_t i = 0u; i < 24u * 80u; ++i)
+    } //for i
 
     //fill the reserved background vertices
     const sf::FloatRect vbounds = m_vertices.getBounds();

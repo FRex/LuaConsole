@@ -33,7 +33,7 @@ const unsigned kColorsCount = sizeof (colors) / sizeof (colors[0]);
 
 //echo using a different color for each character
 
-int demo_rainbowEcho(lua_State * L)
+static int demo_rainbowEcho(lua_State * L)
 {
     std::size_t len;
     const char * msg = luaL_checklstring(L, 1, &len);
@@ -57,7 +57,7 @@ int demo_rainbowEcho(lua_State * L)
 
 //set console title
 
-int demo_setTitle(lua_State * L)
+static int demo_setTitle(lua_State * L)
 {
     const char * title = luaL_checkstring(L, 1);
 
@@ -73,7 +73,7 @@ int demo_setTitle(lua_State * L)
 
 //echo in color
 
-int demo_echoColored(lua_State * L)
+static int demo_echoColored(lua_State * L)
 {
     const char * msg = luaL_checkstring(L, 1);
     unsigned color = static_cast<unsigned>(luaL_checknumber(L, 2)); //no check unsigned in 5.1/Jit
@@ -92,7 +92,7 @@ const char * const kColorNames[] = {
 
 //set one of console colors
 
-int demo_setConsoleColor(lua_State * L)
+static int demo_setConsoleColor(lua_State * L)
 {
     const int opt = luaL_checkoption(L, 1, 0x0, kColorNames);
     unsigned color = static_cast<unsigned>(luaL_checknumber(L, 2)); //no check unsigned in 5.1/Jit
@@ -104,11 +104,23 @@ int demo_setConsoleColor(lua_State * L)
     return 0;
 }
 
+static int demo_setConsoleSize(lua_State * L)
+{
+    unsigned w = static_cast<unsigned>(luaL_checknumber(L, 1));
+    unsigned h = static_cast<unsigned>(luaL_checknumber(L, 2));
+    blua::LuaConsoleModel * model = blua::LuaConsoleModel::getFromRegistry(L);
+    if(model)
+        model->setConsoleSize(w, h);
+
+    return 0;
+}
+
 const luaL_Reg demoReg[] = {
     {"rainbowEcho", &demo_rainbowEcho},
     {"setTitle", &demo_setTitle},
     {"echoColored", &demo_echoColored},
     {"setConsoleColor", &demo_setConsoleColor},
+    {"setConsoleSize", &demo_setConsoleSize},
     {0x0, 0x0}
 };
 

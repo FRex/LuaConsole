@@ -3,16 +3,16 @@
 
 namespace blua {
 
-LuaSFMLConsoleInput::LuaSFMLConsoleInput(LuaConsoleModel* model) :
+LuaSFMLConsoleInput::LuaSFMLConsoleInput(LuaConsoleModel * model) :
 m_model(model),
 m_togglekey(sf::Keyboard::Unknown) { }
 
-void LuaSFMLConsoleInput::setModel(LuaConsoleModel* model)
+void LuaSFMLConsoleInput::setModel(LuaConsoleModel * model)
 {
     m_model = model;
 }
 
-LuaConsoleModel* LuaSFMLConsoleInput::getModel() const
+LuaConsoleModel * LuaSFMLConsoleInput::getModel() const
 {
     return m_model;
 }
@@ -119,10 +119,10 @@ void LuaSFMLConsoleInput::handleCtrlKeyEvent(sf::Event event)
             m_model->scrollLines(kScrollLinesEnd);
             break;
         case sf::Keyboard::PageUp:
-            m_model->scrollLines(-21);
+            m_model->scrollLines(-(m_model->getConsoleHeight() - 3));
             break;
         case sf::Keyboard::PageDown:
-            m_model->scrollLines(21);
+            m_model->scrollLines((m_model->getConsoleHeight() - 3));
             break;
         default:
             //TODO:optionally do not consume all keys? (as above)

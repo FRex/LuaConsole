@@ -8,9 +8,6 @@
 
 namespace blua {
 
-//how wide is console -- this has to be adjustable later
-const int kInnerWidth = 78;
-
 //name of metatable/type in registry that our console is using
 const char * const kMetaname = "bla_LuaConsole";
 
@@ -68,7 +65,7 @@ inline static void * getLightKey()
     return &TheLightKey;
 }
 
-LuaConsoleModel* LuaConsoleModel::getFromRegistry(lua_State* L)
+LuaConsoleModel * LuaConsoleModel::getFromRegistry(lua_State* L)
 {
     //get our console from the registry
     lua_pushlightuserdata(L, getLightKey());
@@ -115,7 +112,6 @@ m_dirtyness(1u), //because 0u is what view starts at
 m_lastupdate(0u),
 m_cur(1),
 L(0x0),
-m_w(kInnerWidth),
 m_empty(),
 m_options(options),
 m_visible(options & ECO_START_VISIBLE),
@@ -127,31 +123,7 @@ m_addreturn(true),
 m_commentcommands(true),
 m_lastlineoffset(0u)
 {
-    for(int i = 0; i < 24 * 80; ++i)
-    {
-        m_screen[i].Char = ' '; //0x2588
-        m_screen[i].Color = 0xffffffff;
-    }
-
-    //vertical
-    for(int i = 0; i < 80; ++i)
-    {
-        m_screen[i + 80 * 0].Char = kVerticalBarChar;
-        m_screen[i + 80 * 23].Char = kVerticalBarChar;
-    }
-
-    //horizontal
-    for(int i = 0; i < 24; ++i)
-    {
-        m_screen[0 + 80 * i].Char = kHorizontalBarChar;
-        m_screen[79 + 80 * i].Char = kHorizontalBarChar;
-    }
-
-    //corners
-    m_screen[0 + 80 * 0].Char = kULFrameChar;
-    m_screen[0 + 80 * 23].Char = kBLFrameChar;
-    m_screen[79 + 80 * 23].Char = kBRFrameChar;
-    m_screen[79 + 80 * 0].Char = kURFrameChar;
+    setConsoleSize(80u, 24u);
 
     m_colors[ECC_ERROR] = 0xff0000ff;
     m_colors[ECC_HINT] = 0x00ff00ff;
@@ -202,7 +174,7 @@ void LuaConsoleModel::scrollLines(int amount)
     m_firstmsg += amount;
 
     //below code ensures we go no further than last or first line
-    m_firstmsg = std::max(m_firstmsg, 21 - static_cast<int>(m_widemsg.size()));
+    m_firstmsg = std::max<int>(m_firstmsg, (m_height - 3) - static_cast<int>(m_widemsg.size()));
     m_firstmsg = std::min(m_firstmsg, 0);
     ++m_dirtyness;
 }
@@ -506,11 +478,11 @@ void LuaConsoleModel::echoLine(const std::string& str, const ColorString& colors
 
     m_msg.push_back(line);
 
-    pushWideMessages(line, &m_widemsg, m_w);
+    pushWideMessages(line, &m_widemsg, m_width - 2);
 
     if(m_msg.size() > kMessagesKeptCount)
     {
-        const std::size_t msgs = pushWideMessages(*m_msg.begin(), 0x0, m_w);
+        const std::size_t msgs = pushWideMessages(*m_msg.begin(), 0x0, m_width - 2);
         m_msg.erase(m_msg.begin());
         m_widemsg.erase(m_widemsg.begin(), m_widemsg.begin() + msgs);
     }
@@ -718,16 +690,76 @@ bool LuaConsoleModel::getEnterRepeatLast() const
 ScreenCell * LuaConsoleModel::getCells(int x, int y) const
 {
     assert(0 < x);
-    assert(x < 79);
+    assert(static_cast<unsigned>(x + 1) < m_width);
     assert(0 < y);
-    assert(y < 23);
-    return m_screen + x + 80 * y;
+    assert(static_cast<unsigned>(y + 1) < m_height);
+    return &m_screen[x + m_width * y];
 }
 
-const ScreenCell* LuaConsoleModel::getScreenBuffer() const
+const ScreenCell * LuaConsoleModel::getScreenBuffer() const
 {
     updateBuffer();
-    return m_screen;
+    assert(!m_screen.empty());
+    return &m_screen[0];
+}
+
+void LuaConsoleModel::setConsoleSize(unsigned width, unsigned height)
+{
+    if(width < 10u || height < 4u)
+        return;
+
+    if(m_width == width && m_height == height)
+        return;
+
+    //if width changed then redo wide message
+    if(m_width != width)
+    {
+        m_widemsg.clear();
+        for(unsigned i = 0u; i < m_msg.size(); ++i)
+            pushWideMessages(m_msg[i], &m_widemsg, width - 2);
+    }
+
+    ++m_dirtyness;
+    m_width = width;
+    m_height = height;
+    m_screen.assign(width * height, ScreenCell());
+
+    //work space
+    for(unsigned i = 0; i < m_width * m_height; ++i)
+    {
+        m_screen[i].Char = ' '; //0x2588
+        m_screen[i].Color = 0xffffffff;
+    }
+
+    //vertical
+    for(unsigned i = 0; i < m_width; ++i)
+    {
+        m_screen[i + m_width * 0].Char = kVerticalBarChar;
+        m_screen[i + m_width * (m_height - 1)].Char = kVerticalBarChar;
+    }
+
+    //horizontal
+    for(unsigned i = 0; i < m_height; ++i)
+    {
+        m_screen[0 + m_width * i].Char = kHorizontalBarChar;
+        m_screen[m_width - 1 + m_width * i].Char = kHorizontalBarChar;
+    }
+
+    //corners
+    m_screen[0 + m_width * 0].Char = kULFrameChar;
+    m_screen[0 + m_width * (m_height - 1)].Char = kBLFrameChar;
+    m_screen[m_width - 1 + m_width * (m_height - 1)].Char = kBRFrameChar;
+    m_screen[m_width - 1 + m_width * 0].Char = kURFrameChar;
+}
+
+unsigned LuaConsoleModel::getConsoleWidth() const
+{
+    return m_width;
+}
+
+unsigned LuaConsoleModel::getConsoleHeight() const
+{
+    return m_height;
 }
 
 void LuaConsoleModel::updateBuffer() const
@@ -738,37 +770,37 @@ void LuaConsoleModel::updateBuffer() const
     m_lastupdate = m_dirtyness;
 
     //first we clear out the top bar
-    for(int i = 1; i < 79; ++i)
+    for(unsigned i = 1; i < m_width - 1; ++i)
         m_screen[i].Char = kVerticalBarChar;
 
     //then we ensure frame is all OK colored, since setting title overwrites colors
-    for(int i = 0; i < 80; ++i)
+    for(unsigned i = 0; i < m_width; ++i)
     {
-        m_screen[i + 0 * 80].Color = m_colors[ECC_FRAME];
-        m_screen[i + 23 * 80].Color = m_colors[ECC_FRAME];
+        m_screen[i + 0 * m_width].Color = m_colors[ECC_FRAME];
+        m_screen[i + (m_height - 1) * m_width].Color = m_colors[ECC_FRAME];
     }
-    for(int i = 0; i < 23; ++i)
+    for(unsigned i = 0; i < m_height - 1; ++i)
     {
-        m_screen[0 + i * 80].Color = m_colors[ECC_FRAME];
-        m_screen[79 + i * 80].Color = m_colors[ECC_FRAME];
+        m_screen[0 + i * m_width].Color = m_colors[ECC_FRAME];
+        m_screen[m_width - 1 + i * m_width].Color = m_colors[ECC_FRAME];
     }
 
     //now we can set the title and its' color
-    for(int i = 1; i < std::min<int>(79, m_title.length() + 1); ++i)
+    for(int i = 1; i < std::min<int>(m_width - 1, m_title.length() + 1); ++i)
     {
         m_screen[i].Char = m_title[i - 1];
         m_screen[i].Color = m_colors[ECC_TITLE];
     }
 
 
-    for(int i = 1; i < 22; ++i)
+    for(unsigned i = 1; i < (m_height - 2); ++i)
     {
-        const std::string& l = getWideMsg(i - 22);
-        const ColorString& c = getWideColor(i - 22);
+        const std::string& l = getWideMsg(i - (m_height - 2));
+        const ColorString& c = getWideColor(i - (m_height - 2));
 
         ScreenCell * a = getCells(1, i);
 
-        for(int x = 0; x < kInnerWidth; ++x)
+        for(unsigned x = 0; x < (m_width - 2); ++x)
         {
             a[x].Char = ' ';
             a[x].Color = 0xffffffff;
@@ -781,15 +813,15 @@ void LuaConsoleModel::updateBuffer() const
         }
     }
 
-    ScreenCell * a = getCells(1, 22);
+    ScreenCell * a = getCells(1, m_height - 2);
 
-    for(int x = 0; x < kInnerWidth; ++x)
+    for(unsigned x = 0; x < (m_width - 2); ++x)
     {
         a[x].Char = ' ';
         a[x].Color = m_colors[ECC_PROMPT];
     }
 
-    for(std::size_t x = 0; x < kInnerWidth && (m_lastlineoffset + x) < m_lastline.size(); ++x)
+    for(std::size_t x = 0; x < (m_width - 2) && (m_lastlineoffset + x) < m_lastline.size(); ++x)
     {
         a[x].Char = m_lastline[m_lastlineoffset + x];
     }
@@ -920,7 +952,7 @@ void LuaConsoleModel::ensureCurInView()
     {
         m_lastlineoffset = m_cur - 1;
     }
-    while(static_cast<unsigned>(m_cur) > m_lastlineoffset + kInnerWidth)
+    while(static_cast<unsigned>(m_cur) > m_lastlineoffset + m_width - 2)
     {
         ++m_lastlineoffset;
     }

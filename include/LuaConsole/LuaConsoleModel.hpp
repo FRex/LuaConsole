@@ -315,10 +315,17 @@ public:
     //get current position of cursor in the prompt line
     int getCurPos() const;
 
-    //get the screen buffer, its' size is 80x24, 80 columns, 24 lines, first 80
-    //elements are first line, next 80 are second line, etc.
+    //get the screen buffer, its' size is width x height, width columns, height lines, first width
+    //elements are first line, next width are second line, etc.
     //there are no newlines in it so dont look for them
     const ScreenCell * getScreenBuffer() const;
+
+    //set console size, must be at least 10x4
+    void setConsoleSize(unsigned width, unsigned height);
+
+    //get console width and height
+    unsigned getConsoleWidth() const;
+    unsigned getConsoleHeight() const;
 
 private:
     ScreenCell * getCells(int x, int y) const;
@@ -341,14 +348,13 @@ private:
     std::vector<std::string> m_history; //the history buffer
     int m_hindex; //index in history
     std::vector<priv::ColoredLine> m_msg; //actual messages that got echoed
-    int m_w; //width of console, not counting the borders
     std::vector<priv::ColoredLine> m_widemsg; //messages adjusted/split to fit width of console
     const priv::ColoredLine m_empty; //empty line constant
     const unsigned m_options; //options passed at construction
     bool m_visible; //are we visible?
     unsigned m_colors[ECONSOLE_COLOR_COUNT]; //colors of various kinds of text
     bool m_emptyenterrepeat; //should pressing enter with empty prompt repeat last line?
-    mutable ScreenCell m_screen[80 * 24]; //screen buff = chars && colors --make this adjustable?
+    mutable std::vector<ScreenCell> m_screen; //screen buff = chars && colors
     std::string m_title; //title of the console
     LuaPointerOwner<LuaConsoleModel> m_luaptr; //the lua pointer of ours that handles two way deletions
     std::string m_skipchars; //characters we don't consider part of a word when jumping over words
@@ -358,6 +364,8 @@ private:
     std::string m_savedlastline; //last line saved when scrolling history
     bool m_commentcommands; //do we use special comments in prompt to trigger console commands
     unsigned m_lastlineoffset; //offset of last line when it's longer than term width
+    unsigned m_width;
+    unsigned m_height;
 
 };
 
