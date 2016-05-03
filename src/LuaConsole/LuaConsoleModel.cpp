@@ -594,7 +594,10 @@ void LuaConsoleModel::tryComplete()
     std::vector<std::string> possible; //possible matches
     std::string last;
 
-    priv::prepareHints(L, m_lastline, last);
+    //last line part before and after the cursor
+    const std::string lastbeg = m_lastline.substr(0, m_cur - 1);
+    const std::string lastend = m_lastline.substr(m_cur - 1);
+    priv::prepareHints(L, lastbeg, last);
     if(!priv::collectHints(L, possible, last, false))
     {
         //if no hints, assume we want _any_ completion and use global table
@@ -618,17 +621,18 @@ void LuaConsoleModel::tryComplete()
         }
         else
         {
-            m_lastline += commonprefix.substr(last.size());
+            const std::string added = commonprefix.substr(last.size());
+            m_lastline = lastbeg + added + lastend;
             ++m_dirtyness;
-            moveCursor(kCursorEnd);
+            moveCursor(added.size());
         } //commonprefix is not empty
     }
     else if(possible.size() == 1)
     {
-        //m_lastline.erase(m_lastline.size() - last.size());
-        m_lastline += possible[0].substr(last.size());
+        const std::string added = possible[0].substr(last.size());
+        m_lastline = lastbeg + added + lastend;
         ++m_dirtyness;
-        moveCursor(kCursorEnd);
+        moveCursor(added.size());
     }
 }
 
