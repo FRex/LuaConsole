@@ -25,7 +25,6 @@ See the LuaConsoleModel.hpp and the comments above each function of the API for 
 ###Feedback
 1. Forum thread on SFML forum: [link](http://en.sfml-dev.org/forums/index.php?topic=15962.0)
 2. Creating an issue in this repo.
-3. Forum thread on gamedev.net: [link](http://www.gamedev.net/topic/662186-bluaconsole/)
 
 
 ###Demo

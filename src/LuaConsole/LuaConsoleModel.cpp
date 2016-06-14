@@ -377,6 +377,10 @@ void LuaConsoleModel::checkSpecialComments()
     if(m_lastline == "--history")
         for(std::size_t i = 0u; i < m_history.size(); ++i)
             echoColored(m_history[i], m_colors[ECC_HISTORY]);
+
+    if(m_lastline == "--quit")
+        if(m_callbackfuncs[ECT_QUIT])
+            m_callbackfuncs[ECT_QUIT](this, m_callbackdata[ECT_QUIT]);
 }
 
 void LuaConsoleModel::addChar(char c)

@@ -101,6 +101,9 @@ enum ECALLBACK_TYPE
     //use it as hook for own history handling
     ECT_NEWHISTORY = 0,
 
+    //called when user uses --quit comment command, see setCommentCommands
+    //documentation in LuaConsoleModel for more info about these commands
+    ECT_QUIT,
 
     ECALLBACK_TYPE_COUNT //count, keep last
 };
@@ -175,8 +178,12 @@ public:
     void setTitle(const std::string& title);
 
     //set callback for certain events, see ECALLBACK_TYPE enum for more info
-    //void is userdata and will not be touched, only passed to your func
+    //void * data is userdata and will not be touched, only passed to your func
     //use this to implement own history, etc.
+    //pass null func to disable the specific callback
+    //only one callback per type is available
+    //new one overwrites the old one
+    //by default there are no callbacks
     void setCallback(ECALLBACK_TYPE type, CallbackFunc func, void * data);
 
     //set whether or not console is visible, invisible console shouldnt process

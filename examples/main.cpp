@@ -140,6 +140,13 @@ void openDemo(lua_State * L)
     lua_setglobal(L, "demo");
 }
 
+void quitcallback(blua::LuaConsoleModel * model, void * data)
+{
+    (void)model;
+    sf::RenderWindow * app = static_cast<sf::RenderWindow*>(data);
+    app->close();
+}
+
 int main()
 {
     //do that because we are gonna be using rand() in the demo functions
@@ -158,6 +165,9 @@ int main()
     //tell it which console it has to handle, if you forget you get clear errors
     //on each attempt to write or complete code, telling you you forgot to set it
     model.setL(L);
+
+    //add a callback to showcase quit command and callbacks
+    model.setCallback(blua::ECT_QUIT, quitcallback, &app);
 
     //create the input which will filter and translate sf::Event s
     //into calls to model api functions that move the cursor, type characters etc.
