@@ -12,6 +12,7 @@
 #include <vector>
 
 #include <LuaConsole/LuaPointerOwner.hpp>
+#include <LuaConsole/LuaConsoleExport.hpp>
 
 struct lua_State;
 
@@ -32,7 +33,7 @@ namespace priv {
 
 //internal structure to hold line of text and line of assigned colors
 
-class ColoredLine
+class LUACONSOLEAPI ColoredLine
 {
 public:
     std::string Text;
@@ -130,7 +131,7 @@ enum ELINE_PARSE_RESULT
 //a single UTF-32 character* in console, with its' color
 //*so far it can only be an ascii char but this might change
 
-class ScreenCell
+class LUACONSOLEAPI ScreenCell
 {
 public:
     unsigned Char;
@@ -138,7 +139,7 @@ public:
 
 };
 
-class LuaConsoleModel
+class LUACONSOLEAPI LuaConsoleModel
 {
 public:
     //GENERAL API://////////////////////////////////////////////////////////////

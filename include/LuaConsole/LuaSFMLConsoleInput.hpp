@@ -9,12 +9,13 @@
 #define	LUASFMLCONSOLEINPUT_HPP
 
 #include <SFML/Window/Event.hpp>
+#include <LuaConsole/LuaConsoleExport.hpp>
 
 namespace blua{
 
 class LuaConsoleModel;
 
-class LuaSFMLConsoleInput
+class LUACONSOLEAPI LuaSFMLConsoleInput
 {
 public:
     LuaSFMLConsoleInput(LuaConsoleModel * model = 0x0);

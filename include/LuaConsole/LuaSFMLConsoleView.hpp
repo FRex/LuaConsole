@@ -11,12 +11,13 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Font.hpp>
+#include <LuaConsole/LuaConsoleExport.hpp>
 
 namespace blua {
 
 class LuaConsoleModel;
 
-class LuaSFMLConsoleView : public sf::Drawable
+class LUACONSOLEAPI LuaSFMLConsoleView : public sf::Drawable
 {
 public:
     LuaSFMLConsoleView(bool defaultfont = true);
