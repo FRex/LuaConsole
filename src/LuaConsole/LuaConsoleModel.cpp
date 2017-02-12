@@ -388,7 +388,7 @@ void LuaConsoleModel::addChar(char c)
     if(c < ' ' || c >= 127)
         return;
 
-    m_lastline.insert(m_lastline.begin() + m_cur - 1, c);
+    m_lastline.insert(m_lastline.begin() + (m_cur - 1), c);
     ++m_cur;
     ensureCurInView();
     ++m_dirtyness;
