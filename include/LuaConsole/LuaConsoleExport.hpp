@@ -7,6 +7,8 @@
     #else
         #define LUACONSOLEAPI __declspec(dllimport)
     #endif
+#else
+    #define LUACONSOLEAPI
 #endif
 
-#endif LUACONSOLEEXPORT_HPP
+#endif //LUACONSOLEEXPORT_HPP
