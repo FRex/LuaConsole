@@ -28,7 +28,7 @@ See the LuaConsoleModel.hpp and the comments above each function of the API for 
 
 
 ### Demo
-There is a well commented demo of basic usage (with the only input and renderer provided so far - SFML 2.1) in main.cpp
+There is a well commented demo of basic usage in [LuaConsoleProgram](https://github.com/FRex/LuaConsoleProgram).
 
 
 ### Key config
