@@ -1,10 +1,15 @@
 # BLuaConsole
+
+![sshot0](sshot/sshot0.png)
+
 This is a simple but powerful terminal to use with the [Lua](http://www.lua.org) language.
 
 The main classes behind all of the functionality except for input and rendering use only C++98 features and a common subset of Lua 5.3, 5.2 and 5.1 APIs.
 
-There is a demo and an implementation of input and rendering for SFML 2.1 provided in this repo - one class for each of these tasks, four file total.
+There is an implementation of input and rendering for SFML 2.x provided in this repo - one class for each of these tasks, four file total.
 
+### Demo
+There is a well commented demo of basic usage (and more screenshots) in [LuaConsoleProgram](https://github.com/FRex/LuaConsoleProgram).
 
 ## Features:
 * Easy to interface with any font rendering and key input
@@ -25,11 +30,6 @@ See the LuaConsoleModel.hpp and the comments above each function of the API for 
 ### Feedback
 1. Forum thread on SFML forum: [link](http://en.sfml-dev.org/forums/index.php?topic=15962.0)
 2. Creating an issue in this repo.
-
-
-### Demo
-There is a well commented demo of basic usage in [LuaConsoleProgram](https://github.com/FRex/LuaConsoleProgram).
-
 
 ### Key config
 These are the key controls for SFML input but they are inspired by bash, gdb, etc. so they are a good set of keys and shortcuts to use both in this implementation and in future ones. There is nothing stopping you from changing them or writing an input class that allows customizing the key bindings. It's actually very easy to do that.
