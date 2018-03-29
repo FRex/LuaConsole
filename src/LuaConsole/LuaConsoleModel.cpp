@@ -41,7 +41,7 @@ inline static bool isSkipChar(char c, const char * skipchars)
 static int findFirstSkipCharAfterNonskip(const std::string& line, const char *skips, int iter, int start)
 {
     bool gotnonskip = false;
-    for(int i = start + iter; 0 <= i && i<static_cast<int>(line.size()); i += iter)
+    for(int i = start + iter; 0 <= i && i < static_cast<int>(line.size()); i += iter)
     {
         if(gotnonskip)
         {
@@ -58,17 +58,23 @@ static int findFirstSkipCharAfterNonskip(const std::string& line, const char *sk
 }
 
 //this is the best way to do it when we assume 1 console per lua state
-static int TheLightKey;
+static char varConsoleLightKey;
+static char varPrettyPrintFunctionLightKey;
 
-inline static void * getLightKey()
+inline static void * consoleLightKey()
 {
-    return &TheLightKey;
+    return &varConsoleLightKey;
+}
+
+inline static void * prettyPrintFunctionLightKey()
+{
+    return &varPrettyPrintFunctionLightKey;
 }
 
 LuaConsoleModel * LuaConsoleModel::getFromRegistry(lua_State* L)
 {
     //get our console from the registry
-    lua_pushlightuserdata(L, getLightKey());
+    lua_pushlightuserdata(L, consoleLightKey());
     lua_gettable(L, LUA_REGISTRYINDEX);
 
     //if we fail we return null
@@ -108,20 +114,20 @@ LuaConsoleModel* LuaConsoleModel::checkFromRegistry(lua_State* L)
 }
 
 LuaConsoleModel::LuaConsoleModel(unsigned options) :
-m_dirtyness(1u), //because 0u is what view starts at
-m_lastupdate(0u),
-m_cur(1),
-L(0x0),
-m_empty(),
-m_options(options),
-m_visible(options & ECO_START_VISIBLE),
-m_emptyenterrepeat(true),
-m_skipchars(kDefaultSkipChars),
-m_firstmsg(0),
-m_printeval(true),
-m_addreturn(true),
-m_commentcommands(true),
-m_lastlineoffset(0u)
+    m_dirtyness(1u), //because 0u is what view starts at
+    m_lastupdate(0u),
+    m_cur(1),
+    L(0x0),
+    m_empty(),
+    m_options(options),
+    m_visible(options & ECO_START_VISIBLE),
+    m_emptyenterrepeat(true),
+    m_skipchars(kDefaultSkipChars),
+    m_firstmsg(0),
+    m_printeval(true),
+    m_addreturn(true),
+    m_commentcommands(true),
+    m_lastlineoffset(0u)
 {
     setConsoleSize(80u, 24u);
 
@@ -181,7 +187,7 @@ void LuaConsoleModel::scrollLines(int amount)
 
 void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
 {
-    const int iter = (move == EMD_LEFT)?-1:1;
+    const int iter = (move == EMD_LEFT) ? -1 : 1;
 
     //see below about why we do 'm_cur - 1' not just 'm_cur'
     int targ = findFirstSkipCharAfterNonskip(m_lastline, m_skipchars.c_str(), iter, m_cur - 1);
@@ -189,7 +195,7 @@ void LuaConsoleModel::moveCursorOneWord(EMOVE_DIRECTION move)
     //if target is -1 we failed, so just move to home or end, as needed
     if(targ == -1)
     {
-        moveCursor(move == EMD_LEFT?kCursorHome:kCursorEnd);
+        moveCursor(move == EMD_LEFT ? kCursorHome : kCursorEnd);
     }
     else
     {
@@ -239,24 +245,29 @@ void LuaConsoleModel::readHistory(int change)
 void LuaConsoleModel::printLuaStackInColor(int first, int last, unsigned color)
 {
     std::stringstream ss;
+
     for(int i = first; i <= last; ++i)
     {
+        const bool prettified = applyPrettifier(i);
+        const char * strpad = prettified ? "" : "'";
         //we pretty print just the way tostring lua call does
         switch(lua_type(L, i))
         {
-            case LUA_TNUMBER:
-            case LUA_TSTRING:
-                ss << lua_tostring(L, i);
-                break;
-            case LUA_TBOOLEAN:
-                ss << (lua_toboolean(L, i)?"true":"false");
-                break;
-            case LUA_TNIL:
-                ss << "nil";
-                break;
-            default:
-                ss << luaL_typename(L, i) << ": " << lua_topointer(L, i);
-                break;
+        case LUA_TNUMBER:
+            ss << lua_tostring(L, i);
+            break;
+        case LUA_TSTRING:
+            ss << strpad << lua_tostring(L, i) << strpad;
+            break;
+        case LUA_TBOOLEAN:
+            ss << (lua_toboolean(L, i) ? "true" : "false");
+            break;
+        case LUA_TNIL:
+            ss << "nil";
+            break;
+        default:
+            ss << luaL_typename(L, i) << ": " << lua_topointer(L, i);
+            break;
         } //switch lua type i
         ss << ' ';
     }//for i = first to last
@@ -331,22 +342,31 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
         {
             evalok = tryEval(false);
         }
+
         if(evalok && BLA_LUA_OK == lua_pcall(L, 0, LUA_MULTRET, 0))
         {
             m_buffcmd.clear(); //worked & done - clear it
             if(m_printeval && oldtop != lua_gettop(L))
                 printLuaStackInColor(oldtop + 1, lua_gettop(L), m_colors[ECC_EVAL]);
+
+            lua_settop(L, oldtop);
         }
         else
         {
-            std::size_t len;
-            const char * err = lua_tolstring(L, -1, &len);
+            std::string err;
+            const int t = lua_type(L, -1);
+
+            if(t != LUA_TSTRING)
+                err = std::string("(non string error value - ") + lua_typename(L, t) + ")";
+            else
+                err = lua_tostring(L, -1);
+
             ret = ELPR_MORE;
-            if(!blua::incompleteChunkError(err, len))
+            if(evalok || !blua::incompleteChunkError(err.c_str(), err.length()))
             {
                 m_buffcmd.clear(); //failed normally - clear it
                 echoColored(err, m_colors[ECC_ERROR]);
-                ret = evalok?ELPR_RUNTIME_ERROR:ELPR_PARSE_ERROR;
+                ret = evalok ? ELPR_RUNTIME_ERROR : ELPR_PARSE_ERROR;
             }
             lua_pop(L, 1);
         }//got an error, real or <eof>/incomplete chunk one
@@ -530,7 +550,6 @@ static int ConsoleModel_echo(lua_State * L)
 static int ConsoleModel_gc(lua_State * L)
 {
     LuaConsoleModel * m = *static_cast<LuaConsoleModel**>(lua_touserdata(L, 1));
-
     //rationale: assume if our instance in registry and all references of it 
     //got destroyed we are not able to or supposed to use the same L anymore
     if(m)
@@ -541,6 +560,13 @@ static int ConsoleModel_gc(lua_State * L)
 
 void LuaConsoleModel::setL(lua_State * L)
 {
+    //if not in gc then kill our prettifier function register key too
+    if(this->L)
+    {
+        lua_pushnil(this->L);
+        setPrintEvalPrettifier(this->L);
+    }
+
     //TODO: add support for more L's being linked/using echos at once??
     this->L = L;
 
@@ -548,42 +574,46 @@ void LuaConsoleModel::setL(lua_State * L)
     m_luaptr.clearLuaPointer();
     m_luaptr.disarmLuaPointer();
 
-    if(L)
+    if(!L)
+        return;
+
+    LuaConsoleModel ** ptr = static_cast<LuaConsoleModel**>(lua_newuserdata(L, sizeof(LuaConsoleModel*)));
+    (*ptr) = this;
+    m_luaptr.setLuaPointer(ptr);
+
+    //make and set new metatable with gc in it
+
+    luaL_newmetatable(L, kMetaname); //table
+    lua_pushliteral(L, "__gc");
+    lua_pushcfunction(L, &ConsoleModel_gc);
+    lua_settable(L, -3); //table[gc]=ConsoleModel_gc
+    lua_setmetatable(L, -2);
+
+    lua_pushlightuserdata(L, consoleLightKey());
+    lua_pushvalue(L, -2);
+    lua_settable(L, LUA_REGISTRYINDEX);
+
+    lua_pushcclosure(L, &ConsoleModel_echo, 1);
+    lua_setglobal(L, "echo");
+
+    //set eval prettifier to nil before ECO_INIT in case it resets it
+    lua_pushnil(L);
+    setPrintEvalPrettifier(L);
+
+    if(m_options & ECO_INIT)
     {
-        LuaConsoleModel ** ptr = static_cast<LuaConsoleModel**>(lua_newuserdata(L, sizeof (LuaConsoleModel*)));
-        (*ptr) = this;
-        m_luaptr.setLuaPointer(ptr);
-
-        //make and set new metatable with gc in it
-
-        luaL_newmetatable(L, kMetaname); //table
-        lua_pushliteral(L, "__gc");
-        lua_pushcfunction(L, &ConsoleModel_gc);
-        lua_settable(L, -3); //table[gc]=ConsoleModel_gc
-        lua_setmetatable(L, -2);
-
-        lua_pushlightuserdata(L, getLightKey());
-        lua_pushvalue(L, -2);
-        lua_settable(L, LUA_REGISTRYINDEX);
-
-        lua_pushcclosure(L, &ConsoleModel_echo, 1);
-        lua_setglobal(L, "echo");
-
-        if(m_options & ECO_INIT)
+        if(luaL_loadfile(L, kInitFilename) || lua_pcall(L, 0, 1, 0))
         {
-            if(luaL_loadfile(L, kInitFilename) || lua_pcall(L, 0, 1, 0))
-            {
-                echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
-                lua_pop(L, 1); //pop the error message
-                m_visible = true; //crapped up init is important so show console right away
-            }
-            else
-            {
-                m_visible = lua_toboolean(L, -1);
-                lua_pop(L, 1); //pop that boolean
-            }
+            echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
+            lua_pop(L, 1); //pop the error message
+            m_visible = true; //crapped up init is important so show console right away
         }
-    }//if L
+        else
+        {
+            m_visible = lua_toboolean(L, -1);
+            lua_pop(L, 1); //pop that boolean
+        }
+    }
 }
 
 void LuaConsoleModel::tryComplete()
@@ -902,7 +932,7 @@ bool LuaConsoleModel::loadHistoryFromFile(const std::string& filename)
 
 void LuaConsoleModel::saveHistoryToFile(const std::string& filename, bool append)
 {
-    std::ofstream file(filename.c_str(), append?std::ios::app:std::ios::trunc);
+    std::ofstream file(filename.c_str(), append ? std::ios::app : std::ios::trunc);
     for(std::size_t i = 0u; i < getHistorySize(); ++i)
         file << getHistoryItem(i) << std::endl;
 }
@@ -954,6 +984,26 @@ void LuaConsoleModel::clearScreen()
     m_widemsg.clear();
 }
 
+void LuaConsoleModel::setPrintEvalPrettifier(lua_State * L)
+{
+    if(lua_gettop(L) == 0)
+        return;
+
+    const int t = lua_type(L, -1);
+    if(!(t == LUA_TFUNCTION || t == LUA_TNIL))
+        return;
+
+    lua_pushlightuserdata(L, prettyPrintFunctionLightKey());
+    lua_insert(L, -2);
+    lua_settable(L, LUA_REGISTRYINDEX);
+}
+
+void LuaConsoleModel::getPrintEvalPrettifier(lua_State * L) const
+{
+    lua_pushlightuserdata(L, prettyPrintFunctionLightKey());
+    lua_gettable(L, LUA_REGISTRYINDEX);
+}
+
 void LuaConsoleModel::ensureCurInView()
 {
     if(static_cast<unsigned>(m_cur) <= m_lastlineoffset)
@@ -964,6 +1014,32 @@ void LuaConsoleModel::ensureCurInView()
     {
         ++m_lastlineoffset;
     }
+}
+
+bool LuaConsoleModel::applyPrettifier(int index)
+{
+    getPrintEvalPrettifier(L);
+    if(lua_type(L, -1) == LUA_TNIL)
+    {
+        lua_pop(L, 1);
+        return false;
+    }
+
+    assert(lua_type(L, -1) == LUA_TFUNCTION);
+    lua_pushvalue(L, index);
+    if(BLA_LUA_OK == lua_pcall(L, 1, 1, 0))
+    {
+        lua_remove(L, index);
+        lua_insert(L, index);
+        return true;
+    }
+    else
+    {
+        echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
+        lua_pop(L, 1);
+        return false;
+    }
+    return true;
 }
 
 } //blua

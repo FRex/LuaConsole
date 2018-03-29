@@ -271,6 +271,21 @@ public:
     //clear the console screen space messages (but not the history)
     void clearScreen();
 
+    //set the prettifier for eval printing to function on top of the stack
+    //if the value on top is a function its the new prettifier function
+    //if the value on top is a nil then prettifying is disabled
+    //otherwise (gettop(L) == 0 or non nil/function on top) does nothing
+    //if you want to use a __call then wrap the call in a function
+    //if there is an error in the prettifier function then it will be
+    //displayed and the original value printed instead
+    //the prettifier function will be passed one argument and only first of
+    //its return values is used and it can be of any type
+    //this function doesn't affect print eval, see getPrintEval/setPrintEval for that
+    void setPrintEvalPrettifier(lua_State * L);
+
+    //get the eval prettifier function (or nil if it's not set)
+    void getPrintEvalPrettifier(lua_State * L) const;
+
     //API FOR CONTROLLER:///////////////////////////////////////////////////////
 
     //move cursor by given amount of characters, itll be clipped to [0,lastlinesize]
@@ -344,6 +359,7 @@ private:
     bool tryEval(bool addreturn);
     void checkSpecialComments();
     void ensureCurInView();
+    bool applyPrettifier(int index);
 
     CallbackFunc m_callbackfuncs[ECALLBACK_TYPE_COUNT]; //callbakcs called on certain events
     void * m_callbackdata[ECALLBACK_TYPE_COUNT]; //data for callbacks
