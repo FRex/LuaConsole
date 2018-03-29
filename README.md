@@ -9,7 +9,7 @@ The main classes behind all of the functionality except for input and rendering 
 There is an implementation of input and rendering for SFML 2.x provided in this repo - one class for each of these tasks, four file total.
 
 ### Demo
-There is a well commented demo of basic usage (and more screenshots) in [LuaConsoleProgram](https://github.com/FRex/LuaConsoleProgram).
+There is a well commented demo (including a compiled exe) of basic usage and using pprint for pretty printing (and more screenshots) at [LuaConsoleProgram](https://github.com/FRex/LuaConsoleProgram).
 
 ## Features:
 * Easy to interface with any font rendering and key input
@@ -24,6 +24,7 @@ There is a well commented demo of basic usage (and more screenshots) in [LuaCons
 * Exports a single 'echo()' function, that echos single string in default echo color, to state it is attached to
 * Puts itself into the registry table, using a pointer to private global int as light userdata key, and provides a way to get pointer to itself (or null if it's not in this Lua state or was reset to another one already) in a typesafe way
 * Well commented out API and code
+* Pretty printing hook for the eval part
 
 See the LuaConsoleModel.hpp and the comments above each function of the API for full list of features.
 
