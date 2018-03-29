@@ -58,6 +58,7 @@ static int findFirstSkipCharAfterNonskip(const std::string& line, const char *sk
 }
 
 //this is the best way to do it when we assume 1 console per lua state
+//plus I don't wanna assume that registry is okay with lua refs
 static char varConsoleLightKey;
 static char varPrettyPrintFunctionLightKey;
 
@@ -304,6 +305,16 @@ bool LuaConsoleModel::tryEval(bool addreturn)
     }
 }
 
+//avoid problems when error gets called with non string
+static inline std::string adjustErrStr(lua_State * L, int idx)
+{
+    const int t = lua_type(L, idx);
+    if(t == LUA_TSTRING)
+        return lua_tostring(L, idx);
+
+    return std::string("(non string error value - ") + lua_typename(L, t) + ")";
+}
+
 ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
 {
     ELINE_PARSE_RESULT ret = ELPR_OK;
@@ -353,14 +364,7 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
         }
         else
         {
-            std::string err;
-            const int t = lua_type(L, -1);
-
-            if(t != LUA_TSTRING)
-                err = std::string("(non string error value - ") + lua_typename(L, t) + ")";
-            else
-                err = lua_tostring(L, -1);
-
+            const std::string err = adjustErrStr(L, -1);
             ret = ELPR_MORE;
             if(evalok || !blua::incompleteChunkError(err.c_str(), err.length()))
             {
@@ -1035,7 +1039,7 @@ bool LuaConsoleModel::applyPrettifier(int index)
     }
     else
     {
-        echoColored(lua_tostring(L, -1), m_colors[ECC_ERROR]);
+        echoColored(adjustErrStr(L, -1), m_colors[ECC_ERROR]);
         lua_pop(L, 1);
         return false;
     }
