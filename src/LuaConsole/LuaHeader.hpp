@@ -33,7 +33,7 @@ namespace blua {
 
 inline bool incompleteChunkError(const char * err, std::size_t len)
 {
-    return 0 == std::strcmp(err + len - 5u, "<eof>");
+    return err && (std::strlen(err) >= 5u) && (0 == std::strcmp(err + len - 5u, "<eof>"));
 }
 
 } //blua
@@ -59,7 +59,7 @@ namespace blua {
 
 inline bool incompleteChunkError(const char * err, std::size_t len)
 {
-    return 0 == std::strcmp(err + len - 7u, "'<eof>'");
+    return err && (std::strlen(err) >= 7u) && (0 == std::strcmp(err + len - 7u, "'<eof>'"));
 }
 
 } //blua
