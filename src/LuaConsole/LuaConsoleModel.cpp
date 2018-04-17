@@ -169,11 +169,15 @@ LuaConsoleModel::~LuaConsoleModel()
 
 void LuaConsoleModel::moveCursor(int move)
 {
+    const int oldcursor = m_cur;
     m_cur += move;
     m_cur = std::max<int>(m_cur, 1);
     m_cur = std::min<int>(m_lastline.size() + 1, m_cur);
     ensureCurInView();
-    ++m_dirtyness;
+
+    //only bump dirtyness if cursor actually moved
+    if(oldcursor != m_cur)
+        ++m_dirtyness;
 }
 
 void LuaConsoleModel::scrollLines(int amount)
