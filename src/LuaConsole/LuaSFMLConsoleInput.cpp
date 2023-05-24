@@ -119,7 +119,7 @@ void LuaSFMLConsoleInput::handleCtrlKeyEvent(sf::Event event)
             m_model->scrollLines(kScrollLinesEnd);
             break;
         case sf::Keyboard::PageUp:
-            m_model->scrollLines(-(m_model->getConsoleHeight() - 3));
+            m_model->scrollLines(-static_cast<int>(m_model->getConsoleHeight() - 3));
             break;
         case sf::Keyboard::PageDown:
             m_model->scrollLines((m_model->getConsoleHeight() - 3));
