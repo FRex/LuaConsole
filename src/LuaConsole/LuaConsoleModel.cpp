@@ -327,11 +327,15 @@ ELINE_PARSE_RESULT LuaConsoleModel::parseLastLine()
 
     echoColored(m_lastline, m_colors[ECC_CODE]);
 
-    //always push and then remove first, other way around wouldn't be safe
+    //only push history item if last item already in there is not the same
+    //always push first and then remove, other way around wouldn't be safe
     //just make our history always be x lines and do it that way instead of old
     //way, no need for 'maxhistory' variable or anything
-    m_history.push_back(m_lastline);
-    m_history.erase(m_history.begin());
+    if(!m_history.empty() && m_history.back() != m_lastline)
+    {
+        m_history.push_back(m_lastline);
+        m_history.erase(m_history.begin());
+    }
 
     //to 'cancel out' previous history browsing
     m_hindex = m_history.size();
@@ -990,6 +994,7 @@ void LuaConsoleModel::clearScreen()
     m_firstmsg = 0;
     m_msg.clear();
     m_widemsg.clear();
+    m_dirtyness += 1;
 }
 
 void LuaConsoleModel::setPrintEvalPrettifier(lua_State * L)
