@@ -183,15 +183,15 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         // Extract the current glyph's description
         const sf::Glyph& glyph = m_font->getGlyph(curChar, kFontSize, false);
 
-        int left = glyph.bounds.left;
-        int top = glyph.bounds.top;
-        int right = glyph.bounds.left + glyph.bounds.width;
-        int bottom = glyph.bounds.top + glyph.bounds.height;
+        const int left = glyph.bounds.left;
+        const int top = glyph.bounds.top;
+        const int right = glyph.bounds.left + glyph.bounds.width;
+        const int bottom = glyph.bounds.top + glyph.bounds.height;
 
-        float u1 = glyph.textureRect.left;
-        float v1 = glyph.textureRect.top;
-        float u2 = glyph.textureRect.left + glyph.textureRect.width;
-        float v2 = glyph.textureRect.top + glyph.textureRect.height;
+        const float u1 = glyph.textureRect.left;
+        const float v1 = glyph.textureRect.top;
+        const float u2 = glyph.textureRect.left + glyph.textureRect.width;
+        const float v2 = glyph.textureRect.top + glyph.textureRect.height;
 
         //add a quad for the current character
         const sf::Color col = toColor(screen[i].Color);
