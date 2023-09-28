@@ -25,7 +25,7 @@ m_ownfont(false),
 m_defaultfont(defaultfont),
 m_modelvisible(false)
 {
-    m_vertices.setPrimitiveType(sf::Quads);
+    m_vertices.setPrimitiveType(sf::Triangles);
 
     if(m_defaultfont)
     {
@@ -134,7 +134,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     m_vertices.clear();
 
     //reserve 4 vertices for background
-    for(int i = 0; i < 4; ++i)
+    for(int i = 0; i < 6; ++i)
         m_vertices.append(sf::Vertex());
 
     // Precompute the variables needed by the algorithm
@@ -151,8 +151,8 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
 
         //move the reserved vertices so they won't affect the bounds
         if(i == 1u)
-            for(std::size_t j = 0u; j < 4u; ++j)
-                m_vertices[j].position = m_vertices[4].position;
+            for(std::size_t j = 0u; j < 6u; ++j)
+                m_vertices[j].position = m_vertices[6].position;
 
         // Apply the kerning offset
         x += m_font->getKerning(prevChar, curChar, kFontSize);
@@ -169,7 +169,10 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
             m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left, y + g.bounds.top), cc, tc));
             m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left, y + g.bounds.top + g.bounds.height), cc, tc));
             m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left + g.bounds.width, y + g.bounds.top + g.bounds.height), cc, tc));
+
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left + g.bounds.width, y + g.bounds.top + g.bounds.height), cc, tc));
             m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left + g.bounds.width, y + g.bounds.top), cc, tc));
+            m_vertices.append(sf::Vertex(sf::Vector2f(x + g.bounds.left, y + g.bounds.top), cc, tc));
         }
 
         // Handle spaces
@@ -198,7 +201,10 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + top), col, sf::Vector2f(u1, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + top), col, sf::Vector2f(u2, v1)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + bottom), col, sf::Vector2f(u2, v2)));
+
+        m_vertices.append(sf::Vertex(sf::Vector2f(x + right, y + bottom), col, sf::Vector2f(u2, v2)));
         m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + bottom), col, sf::Vector2f(u1, v2)));
+        m_vertices.append(sf::Vertex(sf::Vector2f(x + left, y + top), col, sf::Vector2f(u1, v1)));
 
         // Advance to the next character
         x += glyph.advance;
@@ -220,10 +226,13 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     m_vertices[0].position = sf::Vector2f(vbounds.left, vbounds.top);
     m_vertices[1].position = sf::Vector2f(vbounds.left, vbounds.top + vbounds.height);
     m_vertices[2].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top + vbounds.height);
-    m_vertices[3].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top);
+
+    m_vertices[3].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top + vbounds.height);
+    m_vertices[4].position = sf::Vector2f(vbounds.left + vbounds.width, vbounds.top);
+    m_vertices[5].position = sf::Vector2f(vbounds.left, vbounds.top);
 
     const sf::Color bcolor = toColor(model->getColor(ECC_BACKGROUND));
-    for(std::size_t j = 0u; j < 4u; ++j)
+    for(std::size_t j = 0u; j < 6u; ++j)
     {
         //SFML assumes this is a solid pixel
         m_vertices[j].texCoords = sf::Vector2f(1.f, 1.f);
