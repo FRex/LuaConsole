@@ -143,11 +143,11 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
     float x = 0.f;
     float y = kFontSize;
 
-    sf::Uint32 prevChar = 0u;
+    unsigned prevChar = 0u;
 
     for(std::size_t i = 0u; i < model->getConsoleWidth() * model->getConsoleHeight(); ++i)
     {
-        sf::Uint32 curChar = screen[i].Char;
+        const unsigned curChar = screen[i].Char;
 
         //move the reserved vertices so they won't affect the bounds
         if(i == 1u)
@@ -161,7 +161,7 @@ void LuaSFMLConsoleView::geoRebuild(const LuaConsoleModel * model)
         //add a cursor under the glyph if this is the right position
         if(model->getCurPos() + (model->getConsoleWidth() * (model->getConsoleHeight() - 2)) == i)
         {
-            const sf::Uint32 kFullBlockChar = 0x2588u; //unicode fullblock
+            const unsigned kFullBlockChar = 0x2588u; //unicode fullblock
             const sf::Glyph g = m_font->getGlyph(kFullBlockChar, kFontSize, false);
             const sf::Color cc = toColor(model->getColor(ECC_CURSOR));
             const sf::Vector2f tc = sf::Vector2f(1.f, 1.f); //solid pixel in SFML
