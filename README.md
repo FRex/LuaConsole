@@ -13,7 +13,7 @@ There is a well commented demo (including a compiled exe) of basic usage and usi
 
 ## Features:
 * Easy to interface with any font rendering and key input
-* Works with both Lua 5.3, 5.2 and 5.1, including LuaJIT
+* Works with both Lua 5.3, 5.2 and 5.1, including LuaJIT (if you need 5.4 or above support, feel free to open an issue about it)
 * (Optionally) Loads and runs an init script from luaconsoleinit.lua
 * (Optionally) Loads and saves commands history from luaconsolehistory.txt
 * Allows loading and saving commands history from plaintext file or setting each line directly (for custom filesystems etc.)
